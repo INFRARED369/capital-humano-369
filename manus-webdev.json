@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "projectId": "wdp_651a81f46037441fcd0af4fb",
+  "description": "Sitio corporativo de Capital Humano 369 para presentar reclutamiento, capacitación, administración de nómina y evaluaciones a empresas con operación intensiva.",
+  "managedGit": {
+    "baseCommit": "65e57659beafc3e3f52b905aeb40d3220579d4b4"
+  }
+}
