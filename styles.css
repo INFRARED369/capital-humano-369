@@ -148,3 +148,13 @@
 .promise-mark img{width:145px;height:68px;object-fit:contain}
 @media(max-width:1050px){.intro-aside .big-number img{width:200px;height:94px}.method-brand-watermark{width:52vw}}
 @media(max-width:700px){.mockup-hero .hero-sticker img{width:78px;height:42px}.intro-aside .big-number{height:110px}.intro-aside .big-number img{width:175px;height:82px}.method-brand-watermark{width:72vw;right:-12px;bottom:-35px}.promise-mark img{width:105px;height:50px}}
+/* Final restrained scale: brand mark only in the three requested locations */
+.mockup-hero .hero-sticker{width:138px !important;height:138px !important}
+.mockup-hero .hero-sticker img{width:84px !important;height:42px !important}
+.intro-aside .big-number{height:125px !important;display:flex;align-items:center;transform:none !important}
+.intro-aside .big-number img{width:220px !important;max-width:220px !important;height:96px !important;object-fit:contain;object-position:left center}
+.method-brand-watermark{width:min(34vw,390px) !important;right:-14px !important;bottom:-60px !important;opacity:.075 !important}
+.promise-mark{font:600 84px/.8 'Space Grotesk',sans-serif;letter-spacing:-.1em;color:var(--orange)}
+.promise-mark img{display:none}
+@media(max-width:1050px){.mockup-hero .hero-sticker{width:132px !important;height:132px !important}.mockup-hero .hero-sticker img{width:80px !important;height:40px !important}.intro-aside .big-number img{width:190px !important;max-width:190px !important;height:84px !important}.method-brand-watermark{width:42vw !important}}
+@media(max-width:700px){.mockup-hero .hero-sticker{width:100px !important;height:100px !important}.mockup-hero .hero-sticker img{width:70px !important;height:36px !important}.intro-aside .big-number{height:100px !important}.intro-aside .big-number img{width:165px !important;max-width:165px !important;height:74px !important}.method-brand-watermark{width:58vw !important;bottom:-28px !important}}
