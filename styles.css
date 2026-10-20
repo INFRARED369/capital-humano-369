@@ -121,3 +121,10 @@
 /* Larger primary navigation labels */
 .site-header nav a{font-size:13px;letter-spacing:.01em;font-weight:600}
 @media(max-width:700px){.site-header nav a{font-size:12px}}
+/* Brand 369 symbol supplied by the client */
+.mockup-hero .hero-sticker img{width:78px;height:38px;object-fit:contain;display:block;margin:0 auto 4px;filter:none}
+.mockup-hero .hero-sticker small{display:block}
+.promise-mark{display:flex;align-items:center;justify-content:center;gap:0}
+.promise-mark img{width:118px;height:56px;object-fit:contain;display:block}
+.promise-mark span{color:var(--orange);font-size:32px;margin-left:-10px}
+@media(max-width:700px){.mockup-hero .hero-sticker img{width:60px;height:30px}.promise-mark img{width:90px;height:44px}.promise-mark span{font-size:24px;margin-left:-8px}}
