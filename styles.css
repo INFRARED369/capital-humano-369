@@ -164,3 +164,7 @@
 .method-brand-watermark{width:220px !important;max-width:220px !important;right:-8px !important;bottom:-32px !important;opacity:.055 !important}
 @media(max-width:1050px){.intro-aside .big-number img{width:130px !important;max-width:130px !important;height:58px !important}.method-brand-watermark{width:180px !important;max-width:180px !important}}
 @media(max-width:700px){.intro-aside .big-number{height:76px !important}.intro-aside .big-number img{width:115px !important;max-width:115px !important;height:52px !important}.method-brand-watermark{width:145px !important;max-width:145px !important;bottom:-18px !important}}
+/* Orange 369 mark in the promise block, matched to the secondary mark scale */
+.promise-mark{width:145px !important;height:88px !important;display:flex;align-items:center;justify-content:flex-start;font-size:86px !important;line-height:.78 !important;letter-spacing:-.14em !important;color:var(--orange) !important;white-space:nowrap}
+.promise-mark span{font-size:30px !important;color:var(--lime) !important;margin-left:4px !important}
+@media(max-width:700px){.promise-mark{width:118px !important;height:70px !important;font-size:68px !important}.promise-mark span{font-size:24px !important}}
