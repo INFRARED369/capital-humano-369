@@ -139,3 +139,12 @@
 .method>.container{position:relative;z-index:1}
 @media(max-width:1050px){.mockup-hero .hero-sticker{width:132px;height:132px}.mockup-hero .hero-sticker img{width:92px;height:46px}.intro-aside .big-number{font-size:165px}}
 @media(max-width:700px){.mockup-hero .hero-sticker{width:100px;height:100px}.mockup-hero .hero-sticker img{width:75px;height:38px}.mockup-hero .hero-sticker small{font-size:7px}.intro-aside .big-number{font-size:135px;transform:none}.method:after{font-size:220px;right:-10px;bottom:-35px}}
+/* Use the cropped client brand mark instead of plain numerals */
+.mockup-hero .hero-sticker img{width:112px;height:60px;object-fit:contain}
+.intro-aside .big-number{height:150px;display:flex;align-items:center;transform:none;letter-spacing:0}
+.intro-aside .big-number img{width:235px;height:110px;object-fit:contain;object-position:left center;display:block}
+.method:after{content:none}
+.method-brand-watermark{position:absolute;z-index:0;right:-20px;bottom:-85px;width:min(44vw,560px);height:auto;opacity:.11;transform:rotate(-2deg);pointer-events:none}
+.promise-mark img{width:145px;height:68px;object-fit:contain}
+@media(max-width:1050px){.intro-aside .big-number img{width:200px;height:94px}.method-brand-watermark{width:52vw}}
+@media(max-width:700px){.mockup-hero .hero-sticker img{width:78px;height:42px}.intro-aside .big-number{height:110px}.intro-aside .big-number img{width:175px;height:82px}.method-brand-watermark{width:72vw;right:-12px;bottom:-35px}.promise-mark img{width:105px;height:50px}}
