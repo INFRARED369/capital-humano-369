@@ -128,3 +128,14 @@
 .promise-mark img{width:118px;height:56px;object-fit:contain;display:block}
 .promise-mark span{color:var(--orange);font-size:32px;margin-left:-10px}
 @media(max-width:700px){.mockup-hero .hero-sticker img{width:60px;height:30px}.promise-mark img{width:90px;height:44px}.promise-mark span{font-size:24px;margin-left:-8px}}
+
+/* Brand numeral scale refinements requested */
+.mockup-hero .hero-sticker{width:150px;height:150px}
+.mockup-hero .hero-sticker img{width:105px;height:53px;margin:0 auto 2px}
+.mockup-hero .hero-sticker small{font-size:9px;margin-top:7px}
+.intro-aside .big-number{font-size:190px;line-height:.72;letter-spacing:-.16em;font-weight:600;color:var(--orange);transform:translateX(-8px)}
+.method{position:relative;overflow:hidden}
+.method:after{content:'369';position:absolute;z-index:0;right:-24px;bottom:-96px;font:600 clamp(260px,31vw,520px)/.72 'Space Grotesk',sans-serif;letter-spacing:-.18em;color:rgba(255,106,26,.09);pointer-events:none}
+.method>.container{position:relative;z-index:1}
+@media(max-width:1050px){.mockup-hero .hero-sticker{width:132px;height:132px}.mockup-hero .hero-sticker img{width:92px;height:46px}.intro-aside .big-number{font-size:165px}}
+@media(max-width:700px){.mockup-hero .hero-sticker{width:100px;height:100px}.mockup-hero .hero-sticker img{width:75px;height:38px}.mockup-hero .hero-sticker small{font-size:7px}.intro-aside .big-number{font-size:135px;transform:none}.method:after{font-size:220px;right:-10px;bottom:-35px}}
