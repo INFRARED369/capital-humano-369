@@ -178,3 +178,7 @@
 .promise-mark{width:145px !important;height:88px !important;overflow:visible !important;opacity:.23 !important;filter:none !important}
 .promise-mark img{display:block !important;width:145px !important;height:auto !important;max-width:none !important;opacity:1 !important;filter:grayscale(1) brightness(.42) sepia(1) saturate(2.2) hue-rotate(332deg) !important;mix-blend-mode:normal !important}
 @media(max-width:700px){.promise-mark{width:118px !important;height:70px !important}.promise-mark img{width:118px !important}}
+
+
+/* WhatsApp contact icon */
+.whatsapp-link{display:inline-flex;align-items:center;gap:8px}.whatsapp-icon{width:18px;height:18px;fill:currentColor;flex:0 0 auto}.footer-bottom .whatsapp-link{display:inline-flex;vertical-align:middle;gap:5px}.footer-bottom .whatsapp-icon{width:14px;height:14px}
