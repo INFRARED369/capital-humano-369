@@ -198,3 +198,12 @@
 .contact-meta .whatsapp-link .whatsapp-icon,
 .whatsapp-link .whatsapp-icon{width:15px !important;height:15px !important;min-width:15px !important;min-height:15px !important;display:inline-block !important;fill:#25D366 !important;color:#25D366 !important;flex:0 0 15px !important}
 .footer-bottom .whatsapp-link .whatsapp-icon{width:14px !important;height:14px !important;min-width:14px !important;min-height:14px !important;fill:#25D366 !important;color:#25D366 !important;flex:0 0 14px !important}
+
+/* Contact details layout: clearer hierarchy on desktop and mobile */
+.contact-meta{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 32px !important;align-items:start}
+.contact-meta>div{min-width:0}
+.contact-meta .contact-address{grid-column:span 2}
+.contact-meta a,.contact-meta strong{display:block;overflow-wrap:anywhere}
+.contact-meta .whatsapp-link{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%}
+@media(max-width:950px){.contact-meta{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 18px !important}.contact-meta .contact-address{grid-column:1/-1}}
+@media(max-width:650px){.contact-meta{grid-template-columns:1fr;gap:20px !important}.contact-meta .contact-address{grid-column:auto}.contact-meta a,.contact-meta strong{font-size:13px;line-height:1.45}.contact-meta .whatsapp-link{max-width:100%}.footer-bottom span:nth-child(2){display:flex !important;align-items:center;gap:8px;flex-wrap:wrap}}
