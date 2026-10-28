@@ -75,3 +75,14 @@ window.addEventListener('scroll', () => {
     display.querySelectorAll('.sector-content').forEach((item) => item.classList.toggle('active', item === content));
   });
 })();
+
+// Portada: acceso visual a Tecnología y TI
+(() => {
+  const services = document.querySelector('.mockup-services');
+  if (!services || services.querySelector('[data-home-sector="ti"]')) return;
+  const item = document.createElement('a');
+  item.href = '#sectores';
+  item.dataset.homeSector = 'ti';
+  item.innerHTML = '<span class="service-icon">⌘</span><strong>Tecnología<br />y TI</strong>';
+  services.appendChild(item);
+})();
