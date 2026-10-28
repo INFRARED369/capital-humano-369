@@ -54,3 +54,24 @@ const header = document.querySelector('.site-header');
 window.addEventListener('scroll', () => {
   header?.classList.toggle('scrolled', window.scrollY > 45);
 }, { passive: true });
+
+// Sector addition: Tecnología y TI
+(() => {
+  const selector = document.querySelector('.sector-selector');
+  const display = document.querySelector('.sector-display');
+  if (!selector || !display || selector.querySelector('[data-sector="ti"]')) return;
+  const tab = document.createElement('button');
+  tab.className = 'sector-tab';
+  tab.dataset.sector = 'ti';
+  tab.innerHTML = '<span>06</span> Tecnología y TI <b>↗</b>';
+  selector.appendChild(tab);
+  const content = document.createElement('div');
+  content.className = 'sector-content';
+  content.dataset.content = 'ti';
+  content.innerHTML = '<h3>Tecnología<br /><em>y TI.</em></h3><p>Desarrollo, soporte, infraestructura, datos, ciberseguridad y liderazgo técnico.</p>';
+  display.insertBefore(content, display.querySelector('.display-grid-lines'));
+  tab.addEventListener('click', () => {
+    selector.querySelectorAll('.sector-tab').forEach((item) => item.classList.toggle('active', item === tab));
+    display.querySelectorAll('.sector-content').forEach((item) => item.classList.toggle('active', item === content));
+  });
+})();
