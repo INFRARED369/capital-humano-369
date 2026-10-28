@@ -80,6 +80,7 @@ window.addEventListener('scroll', () => {
 (() => {
   const services = document.querySelector('.mockup-services');
   if (!services || services.querySelector('[data-home-sector="ti"]')) return;
+  if (window.innerWidth > 1050) services.style.gridTemplateColumns = 'repeat(10, minmax(0, 1fr))';
   const item = document.createElement('a');
   item.href = '#sectores';
   item.dataset.homeSector = 'ti';
