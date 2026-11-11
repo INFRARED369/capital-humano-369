@@ -207,3 +207,116 @@
 .contact-meta .whatsapp-link{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%}
 @media(max-width:950px){.contact-meta{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 18px !important}.contact-meta .contact-address{grid-column:1/-1}}
 @media(max-width:650px){.contact-meta{grid-template-columns:1fr;gap:20px !important}.contact-meta .contact-address{grid-column:auto}.contact-meta a,.contact-meta strong{font-size:13px;line-height:1.45}.contact-meta .whatsapp-link{max-width:100%}.footer-bottom span:nth-child(2){display:flex !important;align-items:center;gap:8px;flex-wrap:wrap}}
+
+/* Menú Desplegable Vacantes Premium (Estilo GL Invest) */
+.nav-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-dropdown-trigger {
+  background: none;
+  border: 0;
+  color: var(--paper);
+  font: 600 13px Manrope, sans-serif;
+  letter-spacing: 0.01em;
+  opacity: 0.72;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 0;
+  transition: opacity 0.25s, color 0.25s;
+}
+
+.nav-dropdown:hover .nav-dropdown-trigger,
+.nav-dropdown.open .nav-dropdown-trigger {
+  opacity: 1;
+  color: var(--orange-soft);
+}
+
+.dropdown-caret {
+  font-size: 11px;
+  display: inline-block;
+  transition: transform 0.22s ease;
+}
+
+.nav-dropdown:hover .dropdown-caret,
+.nav-dropdown.open .dropdown-caret {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 235px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 0;
+  box-shadow: 0 16px 38px rgba(16, 29, 38, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-dropdown::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 14px;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown.open .nav-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.main-nav .nav-dropdown-menu .nav-dropdown-item {
+  display: block;
+  padding: 12px 20px;
+  color: #101d26;
+  font: 600 14px Manrope, sans-serif;
+  text-decoration: none;
+  opacity: 1;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.main-nav .nav-dropdown-menu .nav-dropdown-item:hover {
+  background: #ecebe6;
+  color: var(--orange);
+  opacity: 1;
+}
+
+@media (max-width: 650px) {
+  .nav-dropdown {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  .nav-dropdown-trigger {
+    font-size: 20px;
+  }
+  .nav-dropdown-menu {
+    position: static;
+    width: 100%;
+    margin-top: 8px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    display: none;
+  }
+  .nav-dropdown.open .nav-dropdown-menu {
+    display: flex;
+  }
+}

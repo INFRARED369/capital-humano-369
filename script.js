@@ -51,6 +51,23 @@ form?.addEventListener('submit', (event) => {
 });
 
 const header = document.querySelector('.site-header');
+
+// Soporte click/tap para el desplegable "Vacantes Premium"
+document.querySelectorAll('.nav-dropdown').forEach((dropdown) => {
+  const trigger = dropdown.querySelector('.nav-dropdown-trigger');
+  trigger?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = dropdown.classList.toggle('open');
+    trigger.setAttribute('aria-expanded', String(isOpen));
+  });
+});
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.nav-dropdown.open').forEach((dropdown) => {
+    dropdown.classList.remove('open');
+    dropdown.querySelector('.nav-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+  });
+});
 window.addEventListener('scroll', () => {
   header?.classList.toggle('scrolled', window.scrollY > 45);
 }, { passive: true });
