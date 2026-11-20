@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "incremental": true,
+    "paths": {
+      "@shared/*": ["./src/shared/*"],
+      "@domains/*": ["./src/domains/*"],
+      "@web/*": ["./apps/web/*"],
+      "@test/*": ["./test/*"]
+    },
+    "plugins": [{ "name": "next" }]
+  },
+  "include": ["src", "test", "apps/web", "supabase/functions", "e2e", "scripts", "infra", "*.ts", "apps/web/next-env.d.ts"],
+  "exclude": ["node_modules", "apps/web/out", "apps/web/.next", "supabase/functions/**/index.ts"]
+}

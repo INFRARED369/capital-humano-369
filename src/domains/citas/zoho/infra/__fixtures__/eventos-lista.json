@@ -1,0 +1,22 @@
+{
+  "events": [
+    {
+      "uid": "8b1c2f0e4a6d4e2b9a3c7d5e1f0a2b3c@zoho.com",
+      "etag": 1763308800123,
+      "title": "Entrevista V-0042 · María",
+      "description": "Abrir en el panel: https://panel.369.mx/panel/citas/0192f5a0-0000-7000-8000-000000000001\n\n[369:cita-0192f5a0-0000-7000-8000-000000000001]",
+      "isallday": false,
+      "dateandtime": { "timezone": "America/Mexico_City", "start": "20261116T100000-0600", "end": "20261116T103000-0600" }
+    },
+    {
+      "uid": "f00dbabe1234@zoho.com",
+      "etag": 1763300000000,
+      "title": "Junta interna de reclutamiento",
+      "isallday": false,
+      "dateandtime": { "timezone": "America/Mexico_City", "start": "20261116T120000-0600", "end": "20261116T130000-0600" },
+      "attendees": [
+        { "email": "reclutador@369capitalhumano.mx", "status": "ACCEPTED", "attendance": 1 }
+      ]
+    }
+  ]
+}

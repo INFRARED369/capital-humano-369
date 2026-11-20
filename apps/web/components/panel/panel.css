@@ -1,0 +1,106 @@
+/* Panel interno (DSH). Estilos con alcance .panel / .gestion para no chocar con la landing. Contraste AA. */
+.panel,
+.gestion {
+  --p-fondo: #f6f6f2;
+  --p-superficie: #ffffff;
+  --p-texto: #14212b;
+  --p-suave: #4a5560;
+  --p-linea: #c9cdd1;
+  --p-primario: #0b57a4;
+  --p-primario-texto: #ffffff;
+  --p-error: #a3161a;
+  --p-ok: #1d6b34;
+  --p-aviso: #7a4a00;
+  --p-barra: #0b57a4;
+  min-height: 100vh;
+  background: var(--p-fondo);
+  color: var(--p-texto);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.panel *,
+.gestion * { box-sizing: border-box; }
+.panel a,
+.gestion a { color: var(--p-primario); }
+.panel :focus-visible,
+.gestion :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+
+.panel-saltar { position: absolute; left: -9999px; top: 0; background: var(--p-superficie); padding: 8px 12px; }
+.panel-saltar:focus { left: 8px; top: 8px; z-index: 10; }
+
+.panel-cabecera { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 12px 20px; background: var(--p-texto); color: #fff; }
+.panel-cabecera a { color: #fff; }
+.panel-marca { margin: 0; font-weight: 700; letter-spacing: 0.02em; }
+.panel-nav ul { display: flex; flex-wrap: wrap; gap: 4px 16px; list-style: none; margin: 0; padding: 0; }
+.panel-nav a { text-decoration: none; padding: 6px 2px; display: inline-block; }
+.panel-nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: 4px; font-weight: 600; }
+.panel-usuario { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 14px; }
+
+.panel-main,
+.gestion-main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+.gestion-main { max-width: 640px; }
+.panel h1,
+.gestion h1 { font-size: 1.75rem; margin: 0 0 16px; line-height: 1.2; }
+.panel h2,
+.gestion h2 { font-size: 1.25rem; margin: 24px 0 12px; }
+.panel h3 { font-size: 1.05rem; margin: 16px 0 8px; }
+
+.p-tarjeta { background: var(--p-superficie); border: 1px solid var(--p-linea); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+.p-rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 20px; }
+.p-columnas { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .p-columnas { grid-template-columns: 1fr; } }
+
+.p-campo { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.p-campo label,
+.p-leyenda { font-weight: 600; font-size: 14px; }
+.p-campo input,
+.p-campo select,
+.p-campo textarea { font: inherit; padding: 8px 10px; border: 1px solid #6b7680; border-radius: 6px; background: #fff; color: var(--p-texto); min-height: 40px; }
+.p-campo input[aria-invalid='true'],
+.p-campo textarea[aria-invalid='true'] { border-color: var(--p-error); border-width: 2px; }
+.p-ayuda { font-size: 13px; color: var(--p-suave); margin: 0; }
+.p-error { color: var(--p-error); font-size: 14px; margin: 0; }
+.p-ok { color: var(--p-ok); }
+.p-aviso { color: var(--p-aviso); }
+fieldset.p-grupo { border: 1px solid var(--p-linea); border-radius: 8px; padding: 12px 16px; margin: 0 0 16px; }
+fieldset.p-grupo legend { font-weight: 700; padding: 0 6px; }
+.p-checks { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.p-checks label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; min-height: 32px; }
+
+.p-boton { font: inherit; font-weight: 600; border: 0; border-radius: 6px; padding: 10px 18px; min-height: 44px; cursor: pointer; background: var(--p-primario); color: var(--p-primario-texto); }
+.p-boton[disabled] { background: #8a949c; cursor: not-allowed; }
+.p-boton.secundario { background: #fff; color: var(--p-primario); border: 2px solid var(--p-primario); }
+.p-boton.peligro { background: var(--p-error); }
+.panel-cabecera .p-boton.secundario { background: transparent; color: #fff; border-color: #fff; min-height: 36px; padding: 6px 12px; }
+.p-acciones { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 12px; }
+
+.p-tabla { width: 100%; border-collapse: collapse; background: var(--p-superficie); }
+.p-tabla caption { text-align: left; font-weight: 700; padding: 8px 0; }
+.p-tabla th,
+.p-tabla td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--p-linea); vertical-align: top; }
+.p-tabla th { font-size: 14px; background: #eef0f2; }
+.p-tabla td.num,
+.p-tabla th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.p-scroll { overflow-x: auto; }
+
+.p-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.p-kpi { background: var(--p-superficie); border: 1px solid var(--p-linea); border-radius: 8px; padding: 12px 14px; }
+.p-kpi dt { font-size: 13px; color: var(--p-suave); }
+.p-kpi dd { margin: 4px 0 0; font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.p-barra-celda { min-width: 160px; }
+.p-barra { display: block; height: 14px; background: var(--p-barra); border-radius: 3px; min-width: 2px; }
+
+.p-dias { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0; }
+.p-dias li { background: var(--p-superficie); border: 1px solid var(--p-linea); border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+.p-horas { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.p-horas span { background: #e7eef6; border-radius: 4px; padding: 0 6px; font-variant-numeric: tabular-nums; }
+.p-lista { margin: 0; padding-left: 20px; }
+.p-diff { font-family: ui-monospace, Menlo, monospace; font-size: 13px; word-break: break-word; }
+.p-estado { display: inline-block; border-radius: 999px; padding: 0 10px; font-size: 13px; border: 1px solid currentColor; }
+.p-cargando { color: var(--p-suave); }
+
+.gestion-cabecera { background: var(--p-texto); color: #fff; padding: 14px 20px; font-weight: 700; }
+.gestion-horarios { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 16px; }
+.gestion-horarios label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #6b7680; border-radius: 6px; padding: 8px 12px; min-height: 44px; background: #fff; cursor: pointer; }

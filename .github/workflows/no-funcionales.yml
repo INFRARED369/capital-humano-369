@@ -1,0 +1,120 @@
+# Pruebas no funcionales (F7.3) contra STAGING: k6, OWASP ZAP baseline, Lighthouse y headers (E2E-14).
+# Manual o por release. Nunca contra producción con carga (k6) sin aprobación.
+name: No funcionales
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Qué correr'
+        type: choice
+        options: [todo, k6, zap, lighthouse, headers]
+        default: todo
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: no-funcionales
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  k6:
+    name: Carga (NFR-ESC-01, NFR-ESC-05)
+    if: github.event_name == 'release' || inputs.suite == 'todo' || inputs.suite == 'k6'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    env:
+      FUNCIONES_URL: ${{ vars.STAGING_FUNCIONES_URL }}
+      VACANTE_SLUG: ${{ vars.K6_VACANTE_SLUG || 'agente-smart' }}
+      VACANTE_ID: ${{ vars.K6_VACANTE_ID }}
+      ORIGEN: ${{ vars.STAGING_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: k6
+        uses: grafana/setup-k6-action@v1
+      - name: GET slots (p95 < 150 ms)
+        run: k6 run perf/k6/slots.js
+      - name: Postulaciones 50/s (p95 < 300 ms)
+        run: k6 run perf/k6/postulaciones.js
+      - name: Eventos de tracking 500/s (p95 < 300 ms)
+        run: k6 run perf/k6/eventos.js
+
+  zap:
+    name: OWASP ZAP baseline
+    if: github.event_name == 'release' || inputs.suite == 'todo' || inputs.suite == 'zap'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: ZAP baseline
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: ${{ vars.STAGING_URL }}
+          rules_file_name: .zap/rules.tsv
+          cmd_options: '-a -j'
+          fail_action: true
+          allow_issue_writing: false
+
+  lighthouse:
+    name: Lighthouse (NFR-RND-01, NFR-A11Y-01)
+    if: github.event_name == 'release' || inputs.suite == 'todo' || inputs.suite == 'lighthouse'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    env:
+      STAGING_URL: ${{ vars.STAGING_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Lighthouse contra staging
+        run: |
+          npx --yes @lhci/cli@0.14.0 autorun --config=lighthouserc.json \
+            --collect.url="$STAGING_URL/" --collect.url="$STAGING_URL/vacantes/agente-smart/" \
+            --collect.startServerCommand=""
+
+  headers:
+    name: Headers de seguridad en staging (E2E-14)
+    if: github.event_name == 'release' || inputs.suite == 'todo' || inputs.suite == 'headers'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+    env:
+      STAGING_URL: ${{ vars.STAGING_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Dependencias
+        run: npm ci
+      - name: Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Headers (E2E-14)
+        run: npx playwright test e2e/headers.spec.ts --project=desktop

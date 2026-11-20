@@ -1,0 +1,23 @@
+{
+  "events": [
+    {
+      "uid": "8b1c2f0e4a6d4e2b9a3c7d5e1f0a2b3c@zoho.com",
+      "etag": 1763308800123,
+      "title": "Entrevista V-0042 · María",
+      "description": "Abrir en el panel: https://panel.369.mx/panel/citas/0192f5a0-0000-7000-8000-000000000001\n\n[369:cita-0192f5a0-0000-7000-8000-000000000001]",
+      "isallday": false,
+      "isprivate": false,
+      "dateandtime": {
+        "timezone": "America/Mexico_City",
+        "start": "20261116T100000-0600",
+        "end": "20261116T103000-0600"
+      },
+      "reminders": [],
+      "organizer": "agenda-servicio@369capitalhumano.mx",
+      "createdby": "agenda-servicio@369capitalhumano.mx",
+      "lastmodifieddate": "20261113T180000Z",
+      "caluid": "c1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6",
+      "viewEventURL": "https://calendar.zoho.com/eventdetails/8b1c2f0e4a6d4e2b9a3c7d5e1f0a2b3c"
+    }
+  ]
+}

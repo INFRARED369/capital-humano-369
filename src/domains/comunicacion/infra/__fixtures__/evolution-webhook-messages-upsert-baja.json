@@ -1,0 +1,16 @@
+{
+  "event": "messages.upsert",
+  "instance": "369-capital-humano",
+  "data": {
+    "key": { "remoteJid": "5218112345678@s.whatsapp.net", "fromMe": false, "id": "3EB0C767D0A1B2C3D4E5" },
+    "pushName": "Candidato",
+    "message": { "conversation": "BAJA" },
+    "messageType": "conversation",
+    "messageTimestamp": 1763312460,
+    "instanceId": "a1b2c3d4-0000-4000-8000-000000000001",
+    "source": "android"
+  },
+  "date_time": "2026-11-16T11:01:00.000Z",
+  "sender": "5218100000000@s.whatsapp.net",
+  "server_url": "https://evolution.example.com"
+}

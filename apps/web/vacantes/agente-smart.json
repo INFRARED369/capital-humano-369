@@ -1,0 +1,190 @@
+{
+  "slug": "agente-smart",
+  "version": 1,
+  "seo": {
+    "titulo": "Vacante: Agente Smart (Telecomunicaciones) | Capital Humano 369",
+    "descripcion": "Postúlate como Agente Smart en el sector Telecomunicaciones en el Centro de Monterrey. Jornada de 6 horas Lunes a Viernes, descanso fijo Sábado y Domingo, $3,000 libres quincenales + comisiones semanales sin tope."
+  },
+  "menu_etiqueta": "Agente Smart · Monterrey",
+  "tracking": { "vacancy_id": "agente-smart", "client_id": "telecom-mty", "content_category": "telecomunicaciones" },
+  "zona_horaria": "America/Monterrey",
+  "whatsapp": { "numero": "528119942627", "etiqueta": "81 1994 2627", "atencion": "Capital Humano · Hilaria Escobar" },
+  "barra_superior": {
+    "insignia": "Vacante Activa",
+    "texto": "Ingresos todos los **Jueves de cada semana** · Descanso fijo **Sábado y Domingo** · Centro de Monterrey"
+  },
+  "hero": {
+    "eyebrow": ["GIRO: TELECOMUNICACIONES", "CENTRO DE MONTERREY", "SIN EXPERIENCIA"],
+    "titulo": ["Vacante:", "**Agente Smart**", "Ventas por __Chat y Llamada.__"],
+    "lead": "Únete como ejecutivo comercial ofreciendo innovadores paquetes de **Internet, Televisión por Cable y Telefonía** a clientes interesados. Modalidad presencial en el **Centro de Monterrey (frente a Plaza La Purísima)** con jornada reducida de 6 horas.",
+    "pills": [
+      { "titulo": "$3,000 Libres Quincenales", "detalle": "Sueldo base libre + pago en el banco de tu preferencia" },
+      { "titulo": "Comisiones SIN TOPE", "detalle": "De $400 a $2,500+ semanales pagadas cada viernes" },
+      { "titulo": "Descanso Sábado y Domingo", "detalle": "Lunes a Viernes · Turno Matutino (9-3) o Vespertino (3-9)" },
+      { "titulo": "Capacitación Pagada (10 días)", "detalle": "Prestaciones de ley desde el día 1 y médico en sitio" }
+    ],
+    "cta_primario": "Postularme y Agendar Entrevista",
+    "cta_secundario": "Ver Requisitos del Perfil",
+    "stats": [
+      { "valor": "6 HRS", "detalle": "Jornada reducida Lunes a Viernes (9am-3pm o 3pm-9pm)" },
+      { "valor": "SÁB + DOM", "detalle": "Descanso fijo garantizado en fin de semana" },
+      { "valor": "$3,000", "detalle": "Libres quincenales + comisiones cada viernes" },
+      { "valor": "JUEVES", "detalle": "Fecha de ingreso semanal con capacitación pagada" }
+    ]
+  },
+  "video": {
+    "src": "/vacantes/agente-smart/Agente_Smart_VF.mp4",
+    "poster": "/vacantes/agente-smart/poster.webp",
+    "etiqueta": "VIDEO INVITACIÓN · VACANTE AGENTE SMART",
+    "presentador": { "titulo": "Atracción de Talento · Capital Humano 369", "subtitulo": "Sector Telecomunicaciones · Monterrey, N.L." },
+    "leyenda": "👋 Conoce en este video las actividades, horarios de 6 horas, sueldo libre y cómo obtener tu Pase de Entrevista hoy mismo.",
+    "sticker": "talento en movimiento"
+  },
+  "beneficios": {
+    "etiqueta": "Ofrecimiento y Funciones Reales",
+    "titulo": ["Lo que ganas y lo que", "**harás en tu día a día.**"],
+    "intro": "Buscamos candidatos bien informados: conoce el esquema de pago libre, tus horarios disponibles y tus actividades antes de agendar.",
+    "tarjetas": [
+      { "indice": "01 / Sueldo Base", "titulo": "$3,000 Libres Quincenales", "texto": "Libres de impuestos ($6,000 libres mensuales) depositados en la cuenta del banco de tu preferencia." },
+      { "indice": "02 / Comisiones sin tope", "titulo": "Pago Semanal Cada Viernes", "texto": "Esquema sin tope de ventas. Nuestros vendedores activos generan en promedio de **$400 a $2,500 MXN semanales**." },
+      { "indice": "03 / Horarios de 6 horas", "titulo": "Turno Matutino o Vespertino", "texto": "Elige tu turno de Lunes a Viernes: • **Matutino:** 9:00 am a 3:00 pm • **Vespertino:** 3:00 pm a 9:00 pm" },
+      { "indice": "04 / Fin de Semana Libre", "titulo": "Descanso Fijo Sábado y Domingo", "texto": "Tus fines de semana son 100% libres de forma fija para que organices tus estudios, familia o proyectos." },
+      { "indice": "05 / Seguridad y Aprendizaje", "titulo": "Capacitación Pagada + IMSS", "texto": "Prestaciones de ley desde tu primer día y **10 días de capacitación completamente pagada**." },
+      { "indice": "06 / Beneficios Adicionales", "titulo": "Médico en Sitio y Descuentos", "texto": "Atención médica dentro de las instalaciones, convenios con universidades y descuentos en comercios, óptica y dental." }
+    ],
+    "funcion": {
+      "indice": "Función Principal del Puesto",
+      "titulo": "¿Qué hace un Agente Smart en Telecomunicaciones?",
+      "texto": "Tu función principal será el **cierre de ventas a clientes interesados** en contratar paquetes de Internet, Telefonía o Televisión por Cable. Tu entusiasmo y habilidad para comunicarte serán clave trabajando de manera presencial mediante **chat por redes sociales y llamadas telefónicas**."
+    }
+  },
+  "calculadora": { "titulo": "Calcula tu ingreso mensual", "base_mensual": 6000, "min": 400, "max": 2500, "paso": 100, "inicial": 1500, "semanas_por_mes": 4 },
+  "perfil": {
+    "etiqueta": "Perfil 369",
+    "titulo": ["Conoce el perfil", "**que buscamos para el puesto.**"],
+    "intro": "Queremos que ingreses con éxito. Revisa el perfil y lo que conviene considerar antes de agendar tu entrevista.",
+    "columnas": [
+      {
+        "tipo": "si",
+        "encabezado": "✓ PERFIL REQUERIDO",
+        "nota": "CANDIDATO IDEAL",
+        "items": [
+          { "titulo": "Edad:", "texto": "18 años en adelante (es posible contratar jóvenes de **17 años siempre y cuando estén estudiando**)." },
+          { "titulo": "Escolaridad y Computadora:", "texto": "Preparatoria terminada (o en curso) y **buen manejo de computadora (PC)**." },
+          { "titulo": "NO necesitas experiencia:", "texto": "Te damos capacitación pagada de 10 días desde cero." },
+          { "titulo": "Habilidades:", "texto": "Facilidad de palabra, actitud proactiva, habilidad para negociar y manejar objeciones, y gusto por trabajar bajo objetivos." },
+          { "titulo": "Traslado accesible:", "texto": "Disponibilidad para acudir presencialmente al Centro de Monterrey e ingresar en día **Jueves**." }
+        ]
+      },
+      {
+        "tipo": "no",
+        "encabezado": "✕ CONSIDERA ANTES DE POSTULARTE",
+        "nota": "PARA TU INGRESO",
+        "items": [
+          { "titulo": "Manejo de computadora:", "texto": "El puesto requiere agilidad básica en PC para atender chats y llamadas." },
+          { "titulo": "Documentos completos:", "texto": "Para poder ingresar el jueves es indispensable entregar copias completas de tu papelería." },
+          { "titulo": "Reingresos:", "texto": "No aplican reingresos previos a este mismo centro de contacto." },
+          { "titulo": "Enfoque en ventas:", "texto": "El puesto implica cerrar ventas por llamada/chat y recibir retroalimentación por objetivos." },
+          { "titulo": "Asistencia presencial:", "texto": "El puesto es 100% en sitio." }
+        ]
+      }
+    ]
+  },
+  "ubicacion": {
+    "etiqueta": "Ubicación y Documentación",
+    "titulo": ["Dónde trabajarás y qué", "**papelería necesitas.**"],
+    "sitio": {
+      "indice": "Ubicación del Site · Giro Telecomunicaciones",
+      "titulo": "Centro de Monterrey (Frente a Plaza La Purísima)",
+      "texto": "**Dirección exacta:** Francisco Zarco 569, Centro, 64000 Monterrey, N.L. Ubicación céntrica con acceso directo a rutas urbanas y transporte público."
+    },
+    "direccion": "Francisco Zarco 569, Centro, Monterrey",
+    "mapa_embed": "https://www.google.com/maps?q=Francisco+Zarco+569,+Centro,+64000+Monterrey,+N.L.&output=embed",
+    "mapa_link": "https://maps.app.goo.gl/mXivPT4TqwagEaUN7",
+    "documentos": {
+      "indice": "Checklist de Contratación (Copias)",
+      "titulo": "Documentos para tu Ingreso",
+      "intro": "Las **fechas de ingreso son cada Jueves de la semana**. Prepara copias legibles de los siguientes documentos para tu entrevista:",
+      "items": ["Acta de Nacimiento", "INE vigente", "CURP actualizado", "Comprobante de domicilio", "Comprobante de estudios", "Número de IMSS (NSS)", "Constancia del SAT", "2 Referencias personales"],
+      "nota": { "titulo": "Pase Oficial de Entrevista 369", "texto": "Al completar el formulario abajo y verificar tu contacto se generará tu pase digital con atención directa a **Capital Humano · Hilaria Escobar**." }
+    }
+  },
+  "postulacion": {
+    "etiqueta": "Registro y Cita de Entrevista",
+    "titulo": ["Postúlate y obtén tu", "**Pase de Entrevista.**"],
+    "intro": "Completa tus datos, elige el día y hora de tu entrevista y confirma tu contacto con el código que te enviaremos por WhatsApp, SMS o correo.",
+    "pasos": ["Tus Datos", "Agenda de Cita", "Verifica tu contacto"]
+  },
+  "formulario": {
+    "preguntas": [
+      { "id": "edad", "etiqueta": "Edad (años cumplidos)", "tipo": "numero", "requerida": true, "min": 14, "max": 99, "placeholder": "Ej. 22" },
+      {
+        "id": "municipio", "etiqueta": "Municipio donde vives", "tipo": "opcion", "requerida": true, "presentacion": "select",
+        "opciones": [
+          { "valor": "Monterrey", "etiqueta": "Monterrey" },
+          { "valor": "Guadalupe", "etiqueta": "Guadalupe" },
+          { "valor": "San Nicolás de los Garza", "etiqueta": "San Nicolás de los Garza" },
+          { "valor": "San Pedro Garza García", "etiqueta": "San Pedro Garza García" },
+          { "valor": "General Escobedo", "etiqueta": "General Escobedo" },
+          { "valor": "Santa Catarina", "etiqueta": "Santa Catarina" },
+          { "valor": "Apodaca", "etiqueta": "Apodaca" },
+          { "valor": "Juárez", "etiqueta": "Juárez" },
+          { "valor": "García", "etiqueta": "García" },
+          { "valor": "Otro municipio (Área Metropolitana)", "etiqueta": "Otro municipio" }
+        ]
+      },
+      {
+        "id": "turno", "etiqueta": "Turno de 6 horas que prefieres", "tipo": "opcion", "requerida": true, "presentacion": "select",
+        "opciones": [
+          { "valor": "Matutino (9:00 am a 3:00 pm)", "etiqueta": "Matutino: 9:00 am a 3:00 pm (Lunes a Viernes)" },
+          { "valor": "Vespertino (3:00 pm a 9:00 pm)", "etiqueta": "Vespertino: 3:00 pm a 9:00 pm (Lunes a Viernes)" },
+          { "valor": "Indistinto (Cualquiera de los dos turnos)", "etiqueta": "Disponibilidad para ambos turnos" }
+        ]
+      },
+      {
+        "id": "experiencia", "etiqueta": "Experiencia previa en Call Center o Ventas", "tipo": "opcion", "requerida": true, "presentacion": "select",
+        "opciones": [
+          { "valor": "Sin experiencia previa (Deseo capacitarme)", "etiqueta": "No tengo experiencia, pero me interesan las ventas" },
+          { "valor": "Con experiencia en Call Center / Telemarketing", "etiqueta": "Sí, tengo experiencia en Call Center / Telemarketing" },
+          { "valor": "Con experiencia en ventas presenciales o redes", "etiqueta": "Sí, tengo experiencia en ventas presenciales o por chat" }
+        ]
+      },
+      {
+        "id": "manejo_pc", "etiqueta": "1. ¿Tienes buen manejo de computadora (PC, teclado y navegación en chat)?", "tipo": "opcion", "requerida": true, "presentacion": "tarjetas",
+        "opciones": [{ "valor": "si", "etiqueta": "Sí, manejo bien la computadora" }, { "valor": "no", "etiqueta": "No tengo manejo de computadora" }]
+      },
+      {
+        "id": "ubicacion_accesible", "etiqueta": "2. ¿La ubicación en el Centro de Monterrey (Francisco Zarco 569, frente a Plaza La Purísima) te queda accesible?", "tipo": "opcion", "requerida": true, "presentacion": "tarjetas",
+        "opciones": [{ "valor": "si", "etiqueta": "Sí, me queda accesible acudir presencialmente" }, { "valor": "no", "etiqueta": "No, me queda muy retirado o busco Home Office" }]
+      },
+      {
+        "id": "papeleria_completa", "etiqueta": "3. ¿Cuentas con tu papelería completa en copias (Acta, INE, CURP, NSS, Constancia SAT, Comprobantes) sin documentos en trámite?", "tipo": "opcion", "requerida": true, "presentacion": "tarjetas",
+        "opciones": [{ "valor": "si", "etiqueta": "Sí, cuento con mi papelería completa" }, { "valor": "no", "etiqueta": "No, tengo documentos pendientes o en trámite" }]
+      },
+      {
+        "id": "acuerdo_esquema", "etiqueta": "4. Nuestra dinámica es presencial enfocada a las ventas por llamada y chat ($3,000 libres quincenales + comisiones semanales sin tope). ¿Estás de acuerdo con las funciones, horario y esquema de pago?", "tipo": "opcion", "requerida": true, "presentacion": "tarjetas",
+        "opciones": [{ "valor": "si", "etiqueta": "Sí, estoy de acuerdo y quiero postularme" }, { "valor": "no", "etiqueta": "No, busco otro tipo de puesto o esquema" }]
+      }
+    ]
+  },
+  "pase": {
+    "vacante": "Agente Smart (Giro: Telecomunicaciones)",
+    "atencion": "CAPITAL HUMANO · HILARIA ESCOBAR",
+    "direccion": "Francisco Zarco 569, Centro, 64000 Monterrey, N.L. (Frente a Plaza La Purísima)",
+    "documentos": ["Acta de Nacimiento e INE", "CURP y Número de IMSS (NSS)", "Comprobante de Estudios y Domicilio", "Constancia de Situación Fiscal (SAT)", "2 Referencias personales"]
+  },
+  "faq": {
+    "etiqueta": "Preguntas Frecuentes",
+    "titulo": ["Resolvemos tus dudas", "**antes de tu entrevista.**"],
+    "items": [
+      { "pregunta": "¿Los $3,000 quincenales son libres o antes de impuestos?", "respuesta": "**Sí, son libres de impuestos.** Recibes $3,000 MXN libres cada quincena ($6,000 libres mensuales) por medio del banco de tu preferencia, más tus comisiones semanales." },
+      { "pregunta": "¿Cuánto se puede ganar en total con las comisiones?", "respuesta": "No se maneja un tope en ventas. Tenemos desde un mínimo promedio de **$400 pesos hasta $1,500 - $2,500 semanales** pagados cada viernes. En entrevista el supervisor te muestra la tabla de comisiones a detalle." },
+      { "pregunta": "¿Puedo comenzar a trabajar el mismo día de la entrevista?", "respuesta": "Los ingresos son **todos los Jueves de cada semana**. Para poder ingresar necesitamos realizarte la entrevista previamente y que tengas toda tu papelería completa en copias." },
+      { "pregunta": "¿Qué producto o servicio voy a vender?", "respuesta": "La campaña es para una importante empresa mexicana de **telecomunicaciones** que ofrece servicios de internet, televisión por cable y telefonía para hogares y negocios." },
+      { "pregunta": "¿Tengo que hacer llamadas o también atender mensajes?", "respuesta": "Las ventas se realizan tanto en **llamada telefónica como en chat por redes sociales**; manejamos ambas modalidades." },
+      { "pregunta": "¿Me dan capacitación si no tengo experiencia y ofrecen prestaciones de ley?", "respuesta": "**Sí**, la capacitación dura **10 días y es pagada**, y cuentas con prestaciones de ley y seguro social desde el primer día." }
+    ]
+  },
+  "footer": { "leyenda": "© 2026 Capital Humano 369 · Reclutamiento por Vacante", "direccion": "Vacante en: Francisco Zarco 569, Centro, Monterrey, N.L." },
+  "sticky": { "titulo": "$3,000 Quincenales + Comisiones", "detalle": "DESCANSO SÁB Y DOM · 6 HRS", "cta": "Postularme →" }
+}

@@ -1,0 +1,11 @@
+{
+  "key": { "remoteJid": "5218112345678@s.whatsapp.net", "fromMe": true, "id": "BAE594145F4C59B4" },
+  "pushName": "",
+  "status": "PENDING",
+  "message": { "conversation": "<texto omitido en el fixture>" },
+  "contextInfo": null,
+  "messageType": "conversation",
+  "messageTimestamp": 1763312400,
+  "instanceId": "a1b2c3d4-0000-4000-8000-000000000001",
+  "source": "unknown"
+}

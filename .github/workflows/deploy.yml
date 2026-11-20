@@ -1,24 +1,377 @@
-name: Deploy al servidor por SSH
+# CI/CD (NFR-CI-01, F0.2, D5). Dueño: plataforma.
+#   PR / push:  calidad + pgtap + build + e2e (sin deploy)
+#   push a main (o manual en main): + deploy-supabase (si hay credenciales) + deploy (rsync de out/ + CSP)
+# El deploy SOLO corre si pasan typecheck, lint + fronteras, unitarias, integración, BD (PGlite),
+# cobertura, migraciones/pgTAP + C11 real sobre Postgres de Supabase, y DOS builds:
+#   - build (PRODUCCIÓN, vars.NEXT_PUBLIC_*): CSP con hashes, escaneo de secretos, smoke + headers + axe,
+#     Lighthouse → artefactos `sitio` (lo que se despliega) y `nginx-csp` (su CSP).
+#   - e2e (PRUEBA, https://e2e.supabase.co + IDs falsos): CSP con hashes y la batería Playwright COMPLETA
+#     (todo e2e/*.spec.ts) en desktop, iphone-13 (WebKit), pixel-7 y rendimiento-*, con backend simulado.
+#     Ese build nunca se publica: los E2E necesitan URLs y IDs de prueba que el mock intercepta.
+# Validado por scripts/validar-workflows.mjs (exige que todo e2e/*.spec.ts esté cubierto).
+name: CI/CD
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-produccion
-  cancel-in-progress: false
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NODE_VERSION: '24'
+  SUPABASE_CLI_VERSION: '2.108.0'
+  NEXT_TELEMETRY_DISABLED: '1'
+  DO_NOT_TRACK: '1'
 
 jobs:
-  deploy:
+  calidad:
+    name: Calidad (typecheck, lint, pruebas, cobertura)
     runs-on: ubuntu-latest
-    environment: produccion
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint + fronteras del monolito (NFR-MANT-01, NFR-SEG-08)
+        run: npm run lint
+
+      - name: Workflows válidos
+        run: node scripts/validar-workflows.mjs
+
+      - name: Unitarias
+        run: npm run test:unit
+
+      - name: Integración
+        run: npm run test:integration
+
+      - name: BD / seguridad (PGlite)
+        run: npm run test:db
+
+      - name: Cobertura con umbrales (domain ≥ 90 %, application ≥ 80 %)
+        run: npx vitest run --coverage --project unit --project integration
+
+      - name: Publicar cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: coverage/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  pgtap:
+    name: Migraciones y pgTAP (Postgres de Supabase)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Dependencias (vitest para C11)
+        run: npm ci
+
+      # Solo el contenedor de Postgres (con pg_cron, pg_net, vault y pgTAP); aplica TODAS las migraciones.
+      - name: Postgres de Supabase + migraciones
+        run: supabase db start
+
+      - name: Lint de PL/pgSQL (plpgsql_check)
+        run: supabase db lint --local --level error --fail-on error
+
+      - name: Crons programados (pg_cron)
+        run: |
+          n=$(psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -tAc "select count(*) from cron.job")
+          echo "tareas de cron: $n"
+          test "$n" -ge 8
+
+      - name: pgTAP (S1, S2, RLS en toda tabla)
+        run: |
+          if compgen -G "supabase/tests/*.test.sql" > /dev/null; then
+            supabase test db supabase/tests/*.test.sql
+          else
+            echo "::error::No hay pruebas pgTAP en supabase/tests/*.test.sql"; exit 1
+          fi
+
+      - name: BD limpia para C11 (supabase db reset)
+        run: supabase db reset
+
+      # C11 con concurrencia REAL: N procesos psql (cliente incluido en ubuntu-latest) compiten por el
+      # advisory lock. C11_OBLIGATORIO=1: si faltan psql o la URL, la prueba FALLA (no se omite en verde).
+      - name: C11 · concurrencia real en Postgres (último lugar, cupo diario, retención)
+        run: |
+          psql --version
+          C11_OBLIGATORIO=1 SUPABASE_DB_URL_LOCAL=postgresql://postgres:postgres@127.0.0.1:54322/postgres npx vitest run scripts/c11-concurrencia.test.ts
+
+      - name: Detener
+        if: always()
+        run: supabase stop --no-backup || true
+
+  build:
+    name: Build de PRODUCCIÓN + CSP + secretos + smoke + Lighthouse
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Valores PÚBLICOS (Variables del repositorio, no Secrets). Ver .env.example bloque A.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_FUNCIONES_URL: ${{ vars.NEXT_PUBLIC_FUNCIONES_URL }}
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+      NEXT_PUBLIC_WHATSAPP_FALLBACK: ${{ vars.NEXT_PUBLIC_WHATSAPP_FALLBACK }}
+      NEXT_PUBLIC_META_PIXEL_ID: ${{ vars.NEXT_PUBLIC_META_PIXEL_ID }}
+      NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
+      NEXT_PUBLIC_GTM_ID: ${{ vars.NEXT_PUBLIC_GTM_ID }}
+      NEXT_PUBLIC_CLARITY_ID: ${{ vars.NEXT_PUBLIC_CLARITY_ID }}
+      NEXT_PUBLIC_VERSION_AVISO: ${{ vars.NEXT_PUBLIC_VERSION_AVISO }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Build (next export → apps/web/out)
+        run: npm run build
+
+      # NFR-SEG-07: script-src sin 'unsafe-inline' → hashes sha256 de los scripts inline de ESTE build.
+      - name: CSP con hashes (infra/nginx/csp.conf)
+        run: node scripts/csp-hashes.mjs
+
+      - name: Escaneo de secretos en out/ (S5, NFR-SEG-02)
+        run: npm run scan:secrets
+
+      - name: Navegadores de Playwright
+        run: npx playwright install --with-deps chromium webkit
+
+      # CI=true vuelve estricto el smoke: /vacantes/agente-smart/ DEBE existir en out/
+      # (el rsync --delete la borraría de producción si faltara).
+      - name: E2E smoke + headers + axe sobre el build de producción (desktop, iPhone 13, Pixel 7)
+        run: npx playwright test e2e/smoke.spec.ts e2e/headers.spec.ts
+
+      - name: Lighthouse CI (NFR-RND-01 LCP < 2.5 s, a11y)
+        run: npx --yes @lhci/cli@0.14.0 autorun --config=lighthouserc.json
+
+      - name: Reporte de Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-produccion
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Publicar sitio probado
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitio
+          path: apps/web/out/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Publicar CSP del sitio (snippets/csp.conf)
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-csp
+          path: infra/nginx/csp.conf
+          retention-days: 7
+          if-no-files-found: error
+
+  e2e:
+    name: E2E completo (build de PRUEBA, desktop + iPhone 13 + Pixel 7 + rendimiento)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # Valores de PRUEBA: el backend simulado (e2e/fixtures/backend.ts) intercepta *.supabase.co y los
+      # E2E verifican el Pixel/Clarity con estos IDs. Este build NO se despliega (ver job build).
+      NEXT_PUBLIC_SUPABASE_URL: https://e2e.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: e2e-anon
+      NEXT_PUBLIC_META_PIXEL_ID: '1234567890'
+      NEXT_PUBLIC_CLARITY_ID: e2eclarity
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Build de prueba (next export → apps/web/out)
+        run: npm run build
+
+      - name: CSP con hashes del build de prueba (la usa serve-out)
+        run: node scripts/csp-hashes.mjs
+
+      - name: Escaneo de secretos en out/
+        run: npm run scan:secrets
+
+      - name: Navegadores de Playwright (Chromium + WebKit)
+        run: npx playwright install --with-deps chromium webkit
+
+      # Toda la batería: candidato, cita, panel, vacante, accesibilidad, fixtures, smoke, headers y rendimiento
+      # en todos los proyectos de playwright.config.ts. El fixture `terceros` falla ante cualquier violación de CSP.
+      - name: E2E completo
+        run: npx playwright test
+
+      - name: Reporte de Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  deploy-supabase:
+    name: Deploy de migraciones y edge functions
+    needs: [calidad, pgtap, build, e2e]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: produccion
+    concurrency:
+      group: deploy-supabase-produccion
+      cancel-in-progress: false
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - name: ¿Hay credenciales de Supabase?
+        id: cfg
+        run: |
+          if [ -n "$SUPABASE_ACCESS_TOKEN" ] && [ -n "$SUPABASE_PROJECT_REF" ] && [ -n "$SUPABASE_DB_PASSWORD" ]; then
+            echo "habilitado=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "habilitado=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Sin SUPABASE_ACCESS_TOKEN/SUPABASE_PROJECT_REF/SUPABASE_DB_PASSWORD: se omite el deploy a Supabase."
+          fi
+
+      - name: Checkout
+        if: steps.cfg.outputs.habilitado == 'true'
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Supabase CLI
+        if: steps.cfg.outputs.habilitado == 'true'
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Vincular proyecto
+        if: steps.cfg.outputs.habilitado == 'true'
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Migraciones (db push)
+        if: steps.cfg.outputs.habilitado == 'true'
+        run: supabase db push --linked
+
+      - name: Edge functions
+        if: steps.cfg.outputs.habilitado == 'true'
+        run: |
+          if compgen -G "supabase/functions/*/index.ts" | grep -v '/_shared/' > /dev/null; then
+            supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF" --use-api
+          else
+            echo "::notice::Aún no hay edge functions que desplegar."
+          fi
+
+  deploy:
+    name: Deploy de estáticos (rsync de out/)
+    needs: [calidad, pgtap, build, e2e, deploy-supabase]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: produccion
+    concurrency:
+      group: deploy-produccion
+      cancel-in-progress: false
+    steps:
+      - name: Descargar el sitio probado
+        uses: actions/download-artifact@v4
+        with:
+          name: sitio
+          path: sitio
+
+      - name: Descargar la CSP del sitio
+        uses: actions/download-artifact@v4
+        with:
+          name: nginx-csp
+          path: nginx-csp
+
+      - name: Verificar rutas críticas
+        run: |
+          for f in index.html 404.html vacantes/agente-smart/index.html; do
+            test -s "sitio/$f" || { echo "::error::Falta sitio/$f; no se despliega"; exit 1; }
+          done
+          test -s nginx-csp/csp.conf || { echo "::error::Falta la CSP generada; no se despliega"; exit 1; }
+
+      # Solo scripts/ e infra/nginx: genera la CSP de transición (hashes del HTML viejo ∪ nuevo).
+      - name: Checkout (scripts de CSP)
+        if: vars.NGINX_CSP_PATH != ''
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: repo
+          sparse-checkout: |
+            scripts
+            infra/nginx
+
+      - name: Node
+        if: vars.NGINX_CSP_PATH != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Aviso si la CSP por build no está configurada
+        if: vars.NGINX_CSP_PATH == ''
+        run: echo "::warning::Sin vars.NGINX_CSP_PATH no se sube snippets/csp.conf; el servidor conserva su CSP actual. Ver docs/runbook.md (CSP por build)."
 
       - name: Configurar SSH
         env:
@@ -31,19 +384,58 @@ jobs:
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Sincronizar archivos
+      # Orden sin ventana rota: 1) CSP vieja ∪ nueva + reload, 2) rsync del HTML nuevo, 3) CSP nueva + reload.
+      - name: CSP de transición (anterior ∪ nueva) + reload de Nginx
+        if: vars.NGINX_CSP_PATH != ''
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          NGINX_CSP_PATH: ${{ vars.NGINX_CSP_PATH }}
+          NGINX_RELOAD_CMD: ${{ vars.NGINX_RELOAD_CMD || 'sudo -n nginx -t && sudo -n systemctl reload nginx' }}
+        run: |
+          SSH="ssh -i $HOME/.ssh/id_deploy -p $SSH_PORT -o StrictHostKeyChecking=yes"
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST:$NGINX_CSP_PATH" csp-anterior.conf || echo "::notice::No había CSP previa en el servidor."
+          node repo/scripts/csp-hashes.mjs --out sitio --plantilla repo/infra/nginx/csp.plantilla.conf --destino csp-transicion.conf --unir csp-anterior.conf
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" -o StrictHostKeyChecking=yes csp-transicion.conf "$SSH_USER@$SSH_HOST:$NGINX_CSP_PATH"
+          $SSH "$SSH_USER@$SSH_HOST" "$NGINX_RELOAD_CMD"
+
+      # --delete deja el servidor idéntico a out/; .well-known (ACME) queda protegido.
+      - name: Sincronizar out/
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          rsync -avz --delete \
-            --exclude='.git' --exclude='.github' \
-            --exclude='TODO.md' --exclude='manus-webdev.json' \
+          test -n "$DEPLOY_PATH" && test "$DEPLOY_PATH" != "/"
+          rsync -rlvz --delete --checksum --filter='P .well-known/' \
             -e "ssh -i ~/.ssh/id_deploy -p $SSH_PORT -o StrictHostKeyChecking=yes" \
-            ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+            ./sitio/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+
+      - name: CSP final (solo hashes del sitio nuevo) + reload de Nginx
+        if: vars.NGINX_CSP_PATH != ''
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          NGINX_CSP_PATH: ${{ vars.NGINX_CSP_PATH }}
+          NGINX_RELOAD_CMD: ${{ vars.NGINX_RELOAD_CMD || 'sudo -n nginx -t && sudo -n systemctl reload nginx' }}
+        run: |
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" -o StrictHostKeyChecking=yes nginx-csp/csp.conf "$SSH_USER@$SSH_HOST:$NGINX_CSP_PATH"
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST" "$NGINX_RELOAD_CMD"
 
       - name: Limpiar llave
         if: always()
         run: rm -f ~/.ssh/id_deploy
+
+      - name: Verificación post-deploy
+        if: vars.PRODUCCION_URL != ''
+        env:
+          PRODUCCION_URL: ${{ vars.PRODUCCION_URL }}
+        run: |
+          for ruta in / /vacantes/agente-smart/; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$PRODUCCION_URL$ruta")
+            echo "$ruta → $code"
+            test "$code" = "200"
+          done

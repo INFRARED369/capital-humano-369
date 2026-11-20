@@ -1,0 +1,78 @@
+{
+  "name": "NBX SMS relay (IP fija) · 369",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nbx/v2/sms/send",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6c1f6e1e-0001-4b9a-9d6e-369000000001",
+      "name": "Webhook (comunicacion-worker)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "369-nbx-sms-relay",
+      "credentials": {
+        "httpHeaderAuth": { "id": "", "name": "NBX Authorization (Basic)" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://NBX_HOST/v2/sms/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ $json.headers.authorization }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(Object.assign({ phone: String($json.body.phone || ''), msg: String($json.body.msg || '') }, $json.body.sender ? { sender: String($json.body.sender) } : {}, $json.body.id ? { id: String($json.body.id) } : {})) }}",
+        "options": {
+          "response": {
+            "response": { "fullResponse": true, "neverError": true, "responseFormat": "text" }
+          },
+          "timeout": 8000
+        }
+      },
+      "id": "6c1f6e1e-0002-4b9a-9d6e-369000000002",
+      "name": "POST a NBX",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.body }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode }}",
+          "responseHeaders": {
+            "entries": [{ "name": "content-type", "value": "={{ ($json.headers && $json.headers['content-type']) || 'text/plain' }}" }]
+          }
+        }
+      },
+      "id": "6c1f6e1e-0003-4b9a-9d6e-369000000003",
+      "name": "Responder lo que dijo NBX",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "Webhook (comunicacion-worker)": { "main": [[{ "node": "POST a NBX", "type": "main", "index": 0 }]] },
+    "POST a NBX": { "main": [[{ "node": "Responder lo que dijo NBX", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "executionTimeout": 20
+  }
+}

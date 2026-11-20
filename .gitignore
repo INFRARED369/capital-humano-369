@@ -1,0 +1,14 @@
+docs/*
+node_modules/
+apps/web/.next/
+apps/web/out/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.env*
+.env.*
+!.env.example
+supabase/.temp/
+infra/nginx/csp.conf
+docs

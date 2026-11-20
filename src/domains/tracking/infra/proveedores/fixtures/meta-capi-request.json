@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "event_name": "Lead",
+      "event_time": 1794592800,
+      "event_id": "01934f6e-1c2a-7b3c-8d4e-5f6a7b8c9d0e",
+      "action_source": "website",
+      "event_source_url": "https://capitalhumano369.com/vacantes/agente-smart/",
+      "user_data": {
+        "ph": ["7c7e5a3bc36a8bd8bb0f3e8d7d7d4bfa1b51c0f6b6e1f3b1df1b1e3d4c5a6b7c"],
+        "external_id": ["0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"],
+        "client_ip_address": "189.203.1.2",
+        "client_user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)",
+        "fbc": "fb.1.1794592700000.IwAR1abc",
+        "fbp": "fb.1.1794592700000.1234567890"
+      },
+      "custom_data": {
+        "vacancy_id": "11111111-1111-4111-8111-111111111111",
+        "client_id": "22222222-2222-4222-8222-222222222222",
+        "content_category": "ventas"
+      }
+    }
+  ]
+}

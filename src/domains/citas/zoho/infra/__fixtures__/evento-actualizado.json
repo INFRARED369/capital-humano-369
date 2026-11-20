@@ -1,0 +1,18 @@
+{
+  "events": [
+    {
+      "uid": "8b1c2f0e4a6d4e2b9a3c7d5e1f0a2b3c@zoho.com",
+      "etag": 1763312400456,
+      "title": "Entrevista V-0042 · María",
+      "description": "Abrir en el panel: https://panel.369.mx/panel/citas/0192f5a0-0000-7000-8000-000000000001\n\n[369:cita-0192f5a0-0000-7000-8000-000000000001]",
+      "isallday": false,
+      "dateandtime": {
+        "timezone": "America/Mexico_City",
+        "start": "20261117T170000Z",
+        "end": "20261117T173000Z"
+      },
+      "reminders": [],
+      "caluid": "c1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6"
+    }
+  ]
+}

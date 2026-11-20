@@ -1,0 +1,4 @@
+[
+  { "exists": true, "jid": "5218112345678@s.whatsapp.net", "number": "528112345678" },
+  { "exists": false, "jid": "525500000000@s.whatsapp.net", "number": "525500000000" }
+]

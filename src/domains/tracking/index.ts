@@ -1,0 +1,21 @@
+/** API pública del dominio tracking (única entrada para otros dominios, la web y las edge functions). */
+export { clasificarOrigen, ORIGENES, type Origen, type EntradaOrigen } from './domain/origen.ts';
+export { EVENTOS_NAVEGADOR, EVENTOS_SERVIDOR, eventoMeta, eventoGa4, destinosDe, type EventoFunnel, type Destino } from './domain/eventos.ts';
+export { truncarIp, esIpValida } from './domain/ip.ts';
+export { EventoNavegadorSchema, type EventoNavegadorEntrada } from './domain/ingesta.ts';
+export { construirEventoMeta, construirEventoGa4, type MetaCapiRequest, type EventoGa4Mp } from './domain/capi.ts';
+export { ingerirEvento } from './application/ingerir.ts';
+export { procesarOutbox, CONSUMIDOR, TIPOS_CONSUMIDOS } from './application/consumidor-outbox.ts';
+export { procesarColaCapi, backoffSeg } from './application/worker-capi.ts';
+export type { ContactosPort, Contacto, MetaCapiPort, Ga4Port, RepoTracking, Geo, GeoIpPort, RepoGeoPort } from './application/puertos.ts';
+export { enriquecerGeo, type ResumenGeo } from './application/enriquecer-geo.ts';
+export { crearGeoIpHttp, crearGeoIpDesdeEntorno, geoIpNulo, normalizarRespuestaGeo } from './infra/proveedores/geoip.ts';
+export { crearRepoGeoSql } from './infra/sql/geo.ts';
+export { crearHandlerIngest, geoDeHeaders } from './infra/http/ingest.ts';
+export { crearLimitadorMemoria } from './infra/http/limitador.ts';
+export { crearLimitadorHibrido, crearContadorGlobalSql, type ContadorGlobalPort } from './infra/http/limitador-hibrido.ts';
+export { crearHandlerWorker, correrTrabajoTracking } from './infra/http/worker.ts';
+export { crearRepoTrackingSql, crearColaSql, crearOutboxSql, COLA_CAPI } from './infra/sql/repositorio.ts';
+export { crearMetaCapiAdapter } from './infra/proveedores/meta-capi.ts';
+export { crearGa4Adapter } from './infra/proveedores/ga4.ts';
+export { crearContactosDesdeCaptacion } from './infra/proveedores/contactos.ts';

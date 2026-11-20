@@ -1,0 +1,17 @@
+{
+  "event": "messages.update",
+  "instance": "369-capital-humano",
+  "data": {
+    "messageId": "cm3x0000000000000000000",
+    "keyId": "BAE594145F4C59B4",
+    "remoteJid": "5218112345678@s.whatsapp.net",
+    "fromMe": true,
+    "participant": null,
+    "status": "DELIVERY_ACK",
+    "instanceId": "a1b2c3d4-0000-4000-8000-000000000001"
+  },
+  "destination": "https://example.supabase.co/functions/v1/webhook-evolution",
+  "date_time": "2026-11-16T11:00:05.000Z",
+  "sender": "5218100000000@s.whatsapp.net",
+  "server_url": "https://evolution.example.com"
+}

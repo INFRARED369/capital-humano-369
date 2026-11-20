@@ -1,0 +1,84 @@
+# Smoke nightly contra STAGING (§3.1): Zoho (crear/borrar evento en un calendario de PRUEBA, contrato Zod del
+# dominio), Evolution (existeEnWhatsApp + OTP de prueba), GET citas-api y GET tracking-ingest.
+# Script: scripts/smoke-nightly.mjs (probado en scripts/smoke-nightly.test.ts). Runbook: docs/runbook.md §CI.
+# Si faltan secretos/variables del environment `staging`, el smoke queda OMITIDO (paso con ::warning:: y
+# resumen), nunca en verde falso.
+name: Smoke nightly (staging)
+
+on:
+  schedule:
+    - cron: '17 11 * * *' # 05:17 America/Mexico_City
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-nightly
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  smoke:
+    name: Smoke de integraciones en staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+    env:
+      ZOHO_DC: ${{ vars.ZOHO_DC || 'com' }}
+      ZOHO_CLIENT_ID: ${{ secrets.ZOHO_CLIENT_ID }}
+      ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
+      ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
+      ZOHO_CALENDARIO_PRUEBA: ${{ vars.ZOHO_CALENDARIO_PRUEBA }}
+      EVOLUTION_URL: ${{ vars.EVOLUTION_URL }}
+      EVOLUTION_API_KEY: ${{ secrets.EVOLUTION_API_KEY }}
+      EVOLUTION_INSTANCE: ${{ vars.EVOLUTION_INSTANCE }}
+      SMOKE_TELEFONO_PRUEBA: ${{ secrets.SMOKE_TELEFONO_PRUEBA }}
+      STAGING_FUNCIONES_URL: ${{ vars.STAGING_FUNCIONES_URL }}
+      STAGING_URL: ${{ vars.STAGING_URL }}
+      SMOKE_VACANTE_SLUG: ${{ vars.K6_VACANTE_SLUG || 'agente-smart' }}
+    steps:
+      - name: ¿Hay secretos y variables de staging?
+        id: cfg
+        run: |
+          faltan=""
+          for v in ZOHO_CLIENT_ID ZOHO_CLIENT_SECRET ZOHO_REFRESH_TOKEN ZOHO_CALENDARIO_PRUEBA EVOLUTION_URL EVOLUTION_API_KEY EVOLUTION_INSTANCE SMOKE_TELEFONO_PRUEBA STAGING_FUNCIONES_URL STAGING_URL; do
+            [ -n "${!v}" ] || faltan="$faltan $v"
+          done
+          if [ -z "$faltan" ]; then
+            echo "habilitado=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "habilitado=false" >> "$GITHUB_OUTPUT"
+            echo "faltan=$faltan" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Smoke OMITIDO (faltan secretos)
+        if: steps.cfg.outputs.habilitado != 'true'
+        env:
+          FALTAN: ${{ steps.cfg.outputs.faltan }}
+        run: |
+          echo "::warning title=Smoke nightly omitido::Faltan en el environment staging:$FALTAN. El smoke NO se ejecutó (no es un verde)."
+          printf '### Smoke nightly: OMITIDO\n\nFaltan en el environment `staging`:%s\n' "$FALTAN" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout
+        if: steps.cfg.outputs.habilitado == 'true'
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Node
+        if: steps.cfg.outputs.habilitado == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Dependencias
+        if: steps.cfg.outputs.habilitado == 'true'
+        run: npm ci
+
+      - name: Smoke (Zoho, Evolution, citas-api, tracking-ingest)
+        if: steps.cfg.outputs.habilitado == 'true'
+        run: node scripts/smoke-nightly.mjs

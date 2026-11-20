@@ -1,0 +1,53 @@
+{
+  "name": "capital-humano-369",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev apps/web",
+    "prebuild": "npm run generar:vacantes",
+    "build": "next build apps/web",
+    "postbuild": "node scripts/csp-hashes.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint . && npm run boundaries",
+    "boundaries": "depcruise src apps/web/app apps/web/lib supabase/functions --config .dependency-cruiser.cjs",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:db": "vitest run --project db",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:pgtap": "DO_NOT_TRACK=1 supabase test db supabase/tests/*.test.sql",
+    "test:e2e:smoke": "playwright test e2e/smoke.spec.ts e2e/headers.spec.ts",
+    "validar:workflows": "node scripts/validar-workflows.mjs",
+    "serve:out": "node scripts/serve-out.mjs",
+    "scan:secrets": "node scripts/scan-secrets.mjs apps/web/out",
+    "csp:hashes": "node scripts/csp-hashes.mjs",
+    "generar:vacantes": "node scripts/generar-indice-vacantes.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@electric-sql/pglite": "^0.5.16",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitest/coverage-v8": "^5.1.0",
+    "dependency-cruiser": "^18.7.2",
+    "eslint": "^10.14.0",
+    "msw": "^3.0.5",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  }
+}
