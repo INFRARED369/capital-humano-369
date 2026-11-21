@@ -102,8 +102,8 @@ describe('F7.4 · modo de agenda de citas-api', () => {
 
 describe('cuerpo de la postulación', () => {
   const valores = { nombre: 'Ana López', telefono: '81 1234 5678', email: '', respuestas: { edad: '20', manejo_pc: 'no', papeleria: 'no' } };
-  it('construye el POST con event_id UUID v7, consentimiento y atribución sin nulos', () => {
-    const r = construirPostulacion({
+  it('construye el POST con event_id UUID v7, consentimiento y atribución sin nulos', async () => {
+    const r = await construirPostulacion({
       slug: 'agente-smart', preguntas: PREGUNTAS_PRUEBA, valores, slotInicio: '2026-11-17T15:30:00Z', versionAviso: '2026-11-13', consentido: true,
       turnstileToken: 'tok', atribucion: { visitor_id: null, utm_source: 'facebook' },
     });
@@ -114,18 +114,18 @@ describe('cuerpo de la postulación', () => {
     expect(r.value.atribucion).not.toHaveProperty('visitor_id');
     expect(r.value).not.toHaveProperty('email');
   });
-  it('valida en el cliente con el mismo esquema del servidor', () => {
-    const r = construirPostulacion({ slug: 'agente-smart', preguntas: PREGUNTAS_PRUEBA, valores: { ...valores, telefono: '123' }, slotInicio: '2026-11-17T15:30:00Z', versionAviso: 'v', consentido: false, turnstileToken: '', atribucion: { visitor_id: null } });
+  it('valida en el cliente con el mismo esquema del servidor', async () => {
+    const r = await construirPostulacion({ slug: 'agente-smart', preguntas: PREGUNTAS_PRUEBA, valores: { ...valores, telefono: '123' }, slotInicio: '2026-11-17T15:30:00Z', versionAviso: 'v', consentido: false, turnstileToken: '', atribucion: { visitor_id: null } });
     expect(r.ok).toBe(false);
     if ('error' in r) expect(Object.keys(r.error)).toEqual(expect.arrayContaining(['telefono', 'consentimiento']));
   });
-  it('envía el canal del código; por correo exige email', () => {
+  it('envía el canal del código; por correo exige email', async () => {
     const base = { slug: 'agente-smart', preguntas: PREGUNTAS_PRUEBA, slotInicio: '2026-11-17T15:30:00Z', versionAviso: 'v', consentido: true, turnstileToken: 'tok', atribucion: {} };
-    const sms = construirPostulacion({ ...base, valores, canalOtp: 'sms' });
+    const sms = await construirPostulacion({ ...base, valores, canalOtp: 'sms' });
     expect(sms.ok && sms.value.canal_otp).toBe('sms');
-    const sinCorreo = construirPostulacion({ ...base, valores, canalOtp: 'email' });
+    const sinCorreo = await construirPostulacion({ ...base, valores, canalOtp: 'email' });
     expect('error' in sinCorreo && Object.keys(sinCorreo.error)).toEqual(['email']);
-    expect(construirPostulacion({ ...base, valores: { ...valores, email: 'ana@correo.mx' }, canalOtp: 'email' }).ok).toBe(true);
+    expect((await construirPostulacion({ ...base, valores: { ...valores, email: 'ana@correo.mx' }, canalOtp: 'email' })).ok).toBe(true);
   });
   it('erroresPorCampo traduce la respuesta 422 del servidor', () => {
     expect(erroresPorCampo([{ campo: 'respuestas.edad', mensaje: 'x' }, { campo: 'telefono', mensaje: 'y' }])).toEqual({ 'respuestas.edad': 'x', telefono: 'y' });

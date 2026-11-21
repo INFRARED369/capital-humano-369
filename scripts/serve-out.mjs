@@ -6,7 +6,9 @@
  *    cubre los scripts inline del dir servido, la regenera en memoria con la MISMA función y avisa),
  *  - trailingSlash: /ruta → 301 /ruta/ (conserva la query), /ruta/ → /ruta/index.html,
  *  - 404 con out/404.html, archivos ocultos denegados, solo GET/HEAD,
- *  - Cache-Control como Nginx (_next/static inmutable, HTML no-cache).
+ *  - Cache-Control como Nginx (_next/static inmutable, HTML no-cache),
+ *  - gzip como Nginx (gzip on, nivel 5, mismos tipos): sin él Lighthouse simula bajar el JS sin comprimir (~3×)
+ *    y el LCP medido no se parece al de producción.
  * Lo usan Playwright (webServer) y Lighthouse CI. Uso:
  *   node scripts/serve-out.mjs [--dir apps/web/out] [--port 4173] [--host 127.0.0.1]
  */
@@ -14,6 +16,7 @@ import { createServer } from 'node:http';
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
 import { basename, extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createGzip } from 'node:zlib';
 import { generarCspConf, hashesDeConf, recolectarHashes, renderizarCsp, RUTAS_DEFECTO } from './csp-hashes.mjs';
 import { headersDe, parsearNginx, resolverIncludes } from './lib/nginx-conf.mjs';
 
@@ -43,6 +46,14 @@ const MIME = {
 };
 
 const DIR_NGINX = join(RAIZ_REPO, 'infra', 'nginx');
+
+/** Tipos que comprime Nginx: text/html siempre + gzip_types de infra/nginx/369capitalhumano.conf. */
+const GZIP_TIPOS = /^(?:text\/html|text\/plain|text\/css|application\/javascript|application\/json|image\/svg\+xml|text\/x-component|application\/manifest\+json|application\/xml)\b/;
+
+/** ¿Se responde con gzip? (pura, probada en scripts/serve-out.test.ts) */
+export function usarGzip(acceptEncoding, contentType, tamano) {
+  return /\bgzip\b/i.test(acceptEncoding ?? '') && GZIP_TIPOS.test(contentType) && tamano >= 20;
+}
 
 /** Texto de snippets/csp.conf para `dirOut`: la conf generada si cubre el build; si no, regenerada en memoria. */
 function cspConfPara(dirOut, cspPath) {
@@ -110,11 +121,13 @@ export function crearServidor({ dir, cspPath, headers = headersSeguridad({ dirOu
       res.writeHead(r.estado, { 'content-type': 'text/plain; charset=utf-8' }).end(r.estado === 404 ? 'Not Found' : '');
       return;
     }
-    res.writeHead(r.estado, {
-      'content-type': MIME[extname(r.archivo).toLowerCase()] ?? 'application/octet-stream',
-      'content-length': statSync(r.archivo).size,
-    });
+    const tipo = MIME[extname(r.archivo).toLowerCase()] ?? 'application/octet-stream';
+    const tamano = statSync(r.archivo).size;
+    const gzip = usarGzip(req.headers['accept-encoding'], tipo, tamano);
+    if (GZIP_TIPOS.test(tipo)) res.setHeader('vary', 'Accept-Encoding');
+    res.writeHead(r.estado, gzip ? { 'content-type': tipo, 'content-encoding': 'gzip' } : { 'content-type': tipo, 'content-length': tamano });
     if (req.method === 'HEAD') res.end();
+    else if (gzip) createReadStream(r.archivo).pipe(createGzip({ level: 5 })).pipe(res);
     else createReadStream(r.archivo).pipe(res);
   });
 }

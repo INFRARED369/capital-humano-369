@@ -48,6 +48,8 @@ test('vacante: cada paso del formulario (datos, errores, horario, OTP, pase) es 
   test.slow(); // recorrido completo con varios análisis axe: holgura ante CPU compartida en CI
   await page.goto(LANDING);
   await decidirCookies(page, 'Rechazar');
+  // Al cargar, el formulario no roba el foco (ni dispara FormStarted / carga del validador sin interacción).
+  expect(await page.evaluate(() => !!document.activeElement?.closest('#postularme'))).toBe(false);
   await page.locator('#postularme').scrollIntoViewIfNeeded();
   expect(await axeGraves(page), 'datos').toEqual([]);
   if (esMovil(page)) await usableEnMovil(page, '#postularme');

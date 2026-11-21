@@ -1,6 +1,6 @@
 'use client';
 import { useState, type FormEvent } from 'react';
-import { SERVICIOS_B2B } from '../../../../../src/domains/captacion';
+import { SERVICIOS_B2B } from '../../../../../src/domains/captacion/ui/servicios-b2b';
 import { crearClienteCaptacion } from '../../../lib/captacion/api';
 import { mensajeError } from '../../../lib/captacion/flujo';
 import { linkWhatsApp } from '../../../lib/captacion/whatsapp';

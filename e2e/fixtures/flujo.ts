@@ -10,6 +10,11 @@ export const LANDING = '/vacantes/agente-smart/';
  * descargue por XHR las hojas de estilo externas (Google Fonts), que la CSP bloquea con razón en connect-src.
  */
 export async function axeGraves(page: Page): Promise<string[]> {
+  // Medir contraste a mitad de una transición de color da falsos positivos (CI lento): esperar las finitas.
+  await page.evaluate(() => Promise.race([
+    Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => undefined))),
+    new Promise((r) => setTimeout(r, 2000)),
+  ]));
   const { violations } = await new AxeBuilder({ page }).options({ preload: false }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   return violations
     .filter((v) => v.impact === 'serious' || v.impact === 'critical')
@@ -103,6 +108,12 @@ export async function agendarComoCandidato(page: Page, proveedores: MocksProveed
 }
 
 /** Inicia sesión en el panel con un usuario simulado y espera la lista de vacantes. */
+/** Cierra sesión y espera a que termine (signOut es asíncrono: navegar antes conserva la sesión en CI lento). */
+export async function salirDelPanel(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Cerrar sesión' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Acceso al panel' })).toBeVisible();
+}
+
 export async function entrarAlPanel(page: Page, u: { email: string; password: string }): Promise<void> {
   await page.goto('/panel/');
   await page.getByLabel('Correo').fill(u.email);

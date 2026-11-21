@@ -1,7 +1,18 @@
-/** Construye y valida en el navegador el cuerpo de `postular` con el MISMO esquema Zod del servidor. */
+/**
+ * Construye y valida en el navegador el cuerpo de `postular` con el MISMO esquema Zod del servidor.
+ * El validador (zod + esquemas, ~33 KB gzip) se carga bajo demanda: fuera del bundle inicial de la landing (LCP).
+ */
 import { uuidv7 } from '../../../../src/shared/ids';
 import { err, ok, type Result } from '../../../../src/shared/result';
-import { validarPostulacion, type Pregunta } from '../../../../src/domains/captacion';
+import type { Pregunta } from '../../../../src/domains/captacion';
+
+let validador: Promise<typeof import('../../../../src/domains/captacion')['validarPostulacion']> | null = null;
+
+/** Carga (una sola vez) el validador; llamarlo al primer contacto con el formulario evita la espera al enviar. */
+export function precargarValidador() {
+  validador ??= import('../../../../src/domains/captacion').then((m) => m.validarPostulacion);
+  return validador;
+}
 
 export interface ValoresFormulario {
   nombre: string;
@@ -16,10 +27,10 @@ export function erroresPorCampo(campos: Array<{ campo: string; mensaje: string }
   return Object.fromEntries(campos.map((c) => [c.campo, c.mensaje]));
 }
 
-export function construirPostulacion(i: {
+export async function construirPostulacion(i: {
   slug: string; preguntas: Pregunta[]; valores: ValoresFormulario; slotInicio: string; versionAviso: string; consentido: boolean;
   turnstileToken: string; atribucion: Record<string, unknown>; canalOtp?: 'whatsapp' | 'sms' | 'email';
-}): Result<Record<string, unknown> & { event_id: string }, ErroresCampo> {
+}): Promise<Result<Record<string, unknown> & { event_id: string }, ErroresCampo>> {
   const atribucion = Object.fromEntries(Object.entries(i.atribucion).filter(([, v]) => typeof v === 'string' && v !== ''));
   const respuestas = Object.fromEntries(Object.entries(i.valores.respuestas).filter(([, v]) => v !== ''));
   const cuerpo = {
@@ -35,6 +46,7 @@ export function construirPostulacion(i: {
     ...(Object.keys(atribucion).length ? { atribucion } : {}),
     ...(i.canalOtp ? { canal_otp: i.canalOtp } : {}),
   };
+  const validarPostulacion = await precargarValidador();
   const v = validarPostulacion(cuerpo, i.preguntas);
   if ('error' in v) return err(erroresPorCampo(v.error.campos.map((c) => ({ campo: c.campo.split('.')[0] === 'consentimiento' ? 'consentimiento' : c.campo, mensaje: c.mensaje }))));
   return ok(cuerpo);

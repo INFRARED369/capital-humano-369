@@ -2,8 +2,9 @@
 import { z } from 'zod';
 import { err, ok, type Result } from '../../../shared/result.ts';
 import { ConsentimientoSchema, erroresDeZod, type ErrorFormulario } from './formulario.ts';
+import { SERVICIOS_B2B } from './servicios-b2b.ts';
 
-export const SERVICIOS_B2B = ['Reclutamiento y selección', 'Capacitación y DNC', 'Administración de nómina', 'Pruebas psicométricas / estudios', 'Solución integral'] as const;
+export { SERVICIOS_B2B };
 
 export const ContactoB2BSchema = z.strictObject({
   nombre: z.string().trim().min(2).max(120),

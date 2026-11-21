@@ -14,7 +14,7 @@ import { useCallback, useEffect, useReducer, useRef, useState, type FormEvent } 
 import type { Pregunta } from '../../../../../src/domains/captacion';
 import { crearClienteCaptacion } from '../../../lib/captacion/api';
 import { CANALES_OTP, ETIQUETA_CANAL, destinoOtp, estadoInicial, mensajeError, reducir, type CanalOtp } from '../../../lib/captacion/flujo';
-import { construirPostulacion, erroresPorCampo, type ErroresCampo, type ValoresFormulario } from '../../../lib/captacion/formulario';
+import { construirPostulacion, erroresPorCampo, precargarValidador, type ErroresCampo, type ValoresFormulario } from '../../../lib/captacion/formulario';
 import { borrarAvance, guardarAvance, hayAvance, leerAvance } from '../../../lib/captacion/persistencia';
 import { formatearCita, interpretarAgenda, type DecisionAgenda, type DiaSlots } from '../../../lib/captacion/slots';
 import { linkAgendaWhatsApp, linkWhatsApp, mensajeFallback } from '../../../lib/captacion/whatsapp';
@@ -64,8 +64,15 @@ export function FlujoPostulacion(p: PropsFlujo) {
   // event_id del ClickCTA de la agenda por WhatsApp: su referencia corta viaja en el mensaje (correlación sin PII).
   const [eventoAgenda] = useState(uuidv7);
 
-  // Lleva el foco al título de cada paso (lectores de pantalla y móvil).
+  // Lleva el foco al título de cada paso (lectores de pantalla y móvil). Al montar NO: robaría el foco al cargar la
+  // página y, como el foco cae dentro del <form>, dispararía onFocus → FormStarted y la carga del validador sin que
+  // el candidato haya tocado nada. Al recuperar un avance sí se mueve (cambia `s.paso`).
+  const montado = useRef(false);
   useEffect(() => {
+    if (!montado.current) {
+      montado.current = true;
+      return;
+    }
     raiz.current?.querySelector<HTMLElement>('[data-foco]')?.focus();
   }, [s.paso]);
 
@@ -128,12 +135,13 @@ export function FlujoPostulacion(p: PropsFlujo) {
   function iniciar() {
     if (iniciado) return;
     setIniciado(true);
+    void precargarValidador();
     track('FormStarted', { form_id: 'postulacion' });
   }
 
   async function validarDatos(e: FormEvent) {
     e.preventDefault();
-    const r = construirPostulacion({ slug: p.slug, preguntas: p.preguntas, valores, slotInicio: SLOT_DUMMY, versionAviso: configPublica.versionAviso, consentido, turnstileToken: 'x', atribucion: {} });
+    const r = await construirPostulacion({ slug: p.slug, preguntas: p.preguntas, valores, slotInicio: SLOT_DUMMY, versionAviso: configPublica.versionAviso, consentido, turnstileToken: 'x', atribucion: {} });
     const errs: ErroresCampo = 'error' in r ? Object.fromEntries(Object.entries(r.error).filter(([k]) => !CAMPOS_PASO_HORARIO.has(k))) : {};
     setErrores(errs);
     if (Object.keys(errs).length) {
@@ -153,7 +161,7 @@ export function FlujoPostulacion(p: PropsFlujo) {
   async function postular() {
     if (!slot) return setMensaje('Elige un día y una hora.');
     if (!token) return setMensaje(mensajeError('ANTIBOT_REQUERIDO'));
-    const cuerpo = construirPostulacion({
+    const cuerpo = await construirPostulacion({
       slug: p.slug, preguntas: p.preguntas, valores, slotInicio: slot, versionAviso: configPublica.versionAviso, consentido, turnstileToken: token, canalOtp: canal,
       atribucion: obtenerAtribucion() as unknown as Record<string, unknown>,
     });

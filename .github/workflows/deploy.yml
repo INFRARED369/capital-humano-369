@@ -188,7 +188,10 @@ jobs:
       - name: E2E smoke + headers + axe sobre el build de producción (desktop, iPhone 13, Pixel 7)
         run: npx playwright test e2e/smoke.spec.ts e2e/headers.spec.ts
 
-      - name: Lighthouse CI (NFR-RND-01 LCP < 2.5 s, a11y)
+      # LCP < 3.5 s aquí (simulación "lantern": suma todo el JS de Next/React que arranca antes del LCP; sin JS da
+      # ~1.6 s, con el runtime ~2.9 s). El gate NFR-RND-01 de 2.5 s lo cubre e2e/rendimiento.spec.ts con un navegador
+      # real (Slow 4G + CPU 4x). Volver a 2500 en lighthouserc.json si las landings dejan de hidratar React completo.
+      - name: Lighthouse CI (LCP simulado < 3.5 s, CLS, a11y)
         run: npx --yes @lhci/cli@0.14.0 autorun --config=lighthouserc.json
 
       - name: Reporte de Playwright

@@ -6,7 +6,7 @@
  * recuperación) y la exclusión de Pixel/Clarity en el panel.
  */
 import {
-  IDS, LANDING, PASSWORD_E2E, USUARIOS, agendarComoCandidato, axeGraves, decidirCookies, entrarAlPanel, expect, jwtDe, llenarDatos, rutaDe, rutaExportada, test,
+  IDS, LANDING, PASSWORD_E2E, USUARIOS, agendarComoCandidato, axeGraves, decidirCookies, entrarAlPanel, expect, jwtDe, llenarDatos, rutaDe, rutaExportada, salirDelPanel, test,
 } from './fixtures';
 
 test.beforeEach(() => {
@@ -78,7 +78,7 @@ test.describe('/panel/', () => {
     expect(backend.cita(citaB.id)?.estado).toBe('confirmada');
 
     // Reclutador de B: el espejo.
-    await page.getByRole('button', { name: 'Cerrar sesión' }).click();
+    await salirDelPanel(page);
     await entrarAlPanel(page, USUARIOS.reclutadorB);
     await expect(page.locator('tbody tr')).toHaveCount(1);
     await expect(page.locator('tbody tr').first()).toContainText('Operador Logístico');
@@ -86,7 +86,7 @@ test.describe('/panel/', () => {
     await expect(page.getByText('La cita no existe o no tienes acceso.')).toBeVisible();
 
     // Cliente de A: ve su vacante en solo lectura.
-    await page.getByRole('button', { name: 'Cerrar sesión' }).click();
+    await salirDelPanel(page);
     await entrarAlPanel(page, USUARIOS.clienteA);
     await expect(page.getByText('Cliente (solo lectura)').first()).toBeVisible();
     await expect(page.getByRole('link', { name: /Ver reglas/ })).toHaveCount(1);
@@ -100,7 +100,7 @@ test.describe('/panel/', () => {
     expect(backend.llamadas('panel-reglas')).toHaveLength(0);
 
     // Admin: ambas vacantes y el alta.
-    await page.getByRole('button', { name: 'Cerrar sesión' }).click();
+    await salirDelPanel(page);
     await entrarAlPanel(page, USUARIOS.admin);
     await expect(page.locator('tbody tr')).toHaveCount(2);
     await expect(page.getByRole('link', { name: 'Alta', exact: true })).toBeVisible();

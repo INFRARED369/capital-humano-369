@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
 import { generarCspConf, hashSha256 } from './csp-hashes.mjs';
-import { crearServidor, headersSeguridad, resolverRuta } from './serve-out.mjs';
+import { crearServidor, headersSeguridad, resolverRuta, usarGzip } from './serve-out.mjs';
 import { readFileSync } from 'node:fs';
 
 let dir: string;
@@ -33,6 +33,19 @@ beforeAll(async () => {
 afterAll(() => {
   srv.close();
   rmSync(dir, { recursive: true, force: true });
+});
+
+describe('usarGzip (como Nginx: gzip on + gzip_types)', () => {
+  it('comprime HTML/JS/CSS/JSON si el cliente acepta gzip; no binarios, ni sin Accept-Encoding, ni < 20 B', () => {
+    expect(usarGzip('gzip, deflate, br', 'application/javascript; charset=utf-8', 5000)).toBe(true);
+    expect(usarGzip('gzip', 'text/html; charset=utf-8', 5000)).toBe(true);
+    expect(usarGzip('gzip', 'text/css; charset=utf-8', 5000)).toBe(true);
+    expect(usarGzip('br', 'application/javascript; charset=utf-8', 5000)).toBe(false);
+    expect(usarGzip(undefined, 'text/html; charset=utf-8', 5000)).toBe(false);
+    expect(usarGzip('gzip', 'image/webp', 5000)).toBe(false);
+    expect(usarGzip('gzip', 'font/woff2', 5000)).toBe(false);
+    expect(usarGzip('gzip', 'text/html; charset=utf-8', 10)).toBe(false);
+  });
 });
 
 describe('resolverRuta', () => {
