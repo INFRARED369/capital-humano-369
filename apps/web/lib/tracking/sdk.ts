@@ -2,6 +2,8 @@
  * SDK de tracking del navegador (dueño: dominio tracking).
  * - TRK-01: nada de terceros ni cookies de marketing hasta aceptar; la decisión se guarda con la versión del aviso.
  * - TRK-02: Clarity solo tras aceptar, con el documento completo enmascarado.
+ * - GTM solo tras aceptar; los eventos del embudo van al dataLayer con el mismo event_id y custom_data, sin PII
+ *   (props saneadas). Schedule/WhatsAppVerificado no salen del navegador (T8); revocar detiene los envíos.
  * - D10/TRK-08: un solo Pixel; cada evento lleva custom_data { vacancy_id, client_id, content_category }.
  * - TRK-05: event_id UUID v7 compartido entre Pixel y servidor.
  * - T8: Schedule (CitaConfirmada) jamás sale del navegador; Lead solo al Pixel (el servidor lo manda por CAPI).
@@ -24,7 +26,9 @@ export interface Atribucion {
 
 export type EstadoConsentimiento = 'aceptado' | 'rechazado' | null;
 
-export interface ConfigTracker { ingestUrl: string; pixelId: string; clarityId: string; versionAviso: string }
+export interface ConfigTracker { ingestUrl: string; pixelId: string; clarityId: string; versionAviso: string; gtmId?: string }
+
+const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/;
 
 type FnGlobal = ((...args: unknown[]) => void) & Record<string, unknown>;
 
@@ -165,9 +169,22 @@ export function crearTracker(deps: DepsTracker): Tracker {
     deps.global[nombre] = stub;
   };
 
+  const gtmActivo = () => !!config.gtmId && GTM_ID.test(config.gtmId);
+  const dataLayer = (): unknown[] => {
+    const dl = deps.global.dataLayer;
+    if (Array.isArray(dl)) return dl;
+    const nuevo: unknown[] = [];
+    deps.global.dataLayer = nuevo;
+    return nuevo;
+  };
+
   const cargarTerceros = () => {
     if (tercerosCargados) return;
     tercerosCargados = true;
+    if (gtmActivo()) {
+      dataLayer().push({ 'gtm.start': deps.ahora().getTime(), event: 'gtm.js' });
+      deps.cargarScript('ch369-gtm', `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(config.gtmId!)}`);
+    }
     if (config.clarityId) {
       deps.marcarEnmascarado();
       instalarCola('clarity');
@@ -198,6 +215,12 @@ export function crearTracker(deps: DepsTracker): Tracker {
     fn('fbq')?.('track', evento, customData() ?? {}, { eventID: eventId });
   };
 
+  /** Evento al dataLayer de GTM (solo con consentimiento): nombre del embudo, event_id, custom_data y props saneadas. */
+  const gtm = (nombre: NombreEventoFunnel, eventId: string, props: Record<string, Primitivo> = {}) => {
+    if (estado !== 'aceptado' || !gtmActivo() || nombre === 'CitaConfirmada' || nombre === 'WhatsAppVerificado') return;
+    dataLayer().push({ ...props, ...(customData() ?? {}), event: nombre, event_id: eventId });
+  };
+
   const enviar = (p: Pendiente, conConsentimiento: boolean) => {
     const atr = atribucionVigente();
     const utm = Object.fromEntries(UTM.filter((k) => atr[k]).map((k) => [k, atr[k]!]));
@@ -222,7 +245,10 @@ export function crearTracker(deps: DepsTracker): Tracker {
     } catch {
       /* el tracking nunca rompe la página */
     }
-    if (conConsentimiento) pixel(p.nombre, p.eventId);
+    if (conConsentimiento) {
+      pixel(p.nombre, p.eventId);
+      gtm(p.nombre, p.eventId, p.props);
+    }
   };
 
   const vaciarPendientes = (conConsentimiento: boolean) => {
@@ -245,6 +271,7 @@ export function crearTracker(deps: DepsTracker): Tracker {
       if (tercerosCargados || anterior === 'aceptado') {
         fn('fbq')?.('consent', 'revoke');
         fn('clarity')?.('consent', false);
+        if (gtmActivo()) dataLayer().push({ event: 'consent_revoked' }); // GTM no se descarga; deja de recibir eventos
       }
       vaciarPendientes(false);
     }
@@ -266,6 +293,7 @@ export function crearTracker(deps: DepsTracker): Tracker {
       const id = eventId && UUID.test(eventId) ? eventId : uuidv7(deps.ahora());
       if (SOLO_SERVIDOR.has(nombre)) {
         pixel(nombre, id); // Lead con el mismo event_id del POST; Schedule no tiene mapeo de Pixel (T8)
+        gtm(nombre, id); // solo LeadCreado (sin props); Schedule y WhatsAppVerificado nunca (T8)
         return id;
       }
       const p = { nombre, props: sanearProps(props), eventId: id };

@@ -261,3 +261,75 @@ describe('depsNavegador · adaptadores del navegador', () => {
     expect(doc.documentElement.setAttribute).toHaveBeenCalledWith('data-clarity-mask', 'true');
   });
 });
+
+describe('GTM · solo con consentimiento y sin PII', () => {
+  const conGtm = (gtmId = 'GTM-ABC1234') => {
+    const f = crearFakes();
+    f.deps.config = { ...f.deps.config, gtmId };
+    return f;
+  };
+
+  it('sin decisión o rechazado: no carga gtm.js ni crea dataLayer', () => {
+    const f = conGtm();
+    const t = crearTracker(f.deps);
+    t.iniciar();
+    t.track('PageView');
+    t.rechazar();
+    t.track('ClickCTA', { cta: 'postular' });
+    expect(f.scripts.some((s) => s.includes('googletagmanager'))).toBe(false);
+    expect(f.global.dataLayer).toBeUndefined();
+  });
+
+  it('aceptado: gtm.js con el ID, gtm.start primero y los eventos con el mismo event_id y custom_data', () => {
+    const f = conGtm();
+    const t = crearTracker(f.deps);
+    t.iniciar();
+    t.fijarContextoVacante({ vacancy_id: 'agente-smart', client_id: CLIENTE, content_category: 'Ventas' });
+    const idPv = t.track('PageView');
+    t.aceptar();
+    const idCta = t.track('ClickCTA', { cta: 'postular', correo: 'ana@x.com' });
+    expect(f.scripts).toContain('https://www.googletagmanager.com/gtm.js?id=GTM-ABC1234');
+    const dl = f.global.dataLayer as Array<Record<string, unknown>>;
+    expect(dl[0]).toEqual({ 'gtm.start': Date.parse('2026-11-13T18:00:00Z'), event: 'gtm.js' });
+    expect(dl.find((e) => e.event === 'PageView')).toMatchObject({ event_id: idPv, vacancy_id: 'agente-smart', client_id: CLIENTE });
+    const cta = dl.find((e) => e.event === 'ClickCTA')!;
+    expect(cta).toMatchObject({ event_id: idCta, cta: 'postular' });
+    expect(JSON.stringify(dl)).not.toMatch(/ana@x\.com/);
+  });
+
+  it('LeadCreado va al dataLayer; CitaConfirmada y WhatsAppVerificado nunca (T8)', () => {
+    const f = conGtm();
+    const t = crearTracker(f.deps);
+    t.iniciar();
+    t.aceptar();
+    const idLead = t.track('LeadCreado');
+    t.track('WhatsAppVerificado');
+    t.track('CitaConfirmada');
+    const eventos = (f.global.dataLayer as Array<Record<string, unknown>>).map((e) => e.event);
+    expect(eventos).toContain('LeadCreado');
+    expect(eventos).not.toContain('CitaConfirmada');
+    expect(eventos).not.toContain('WhatsAppVerificado');
+    expect((f.global.dataLayer as Array<Record<string, unknown>>).find((e) => e.event === 'LeadCreado')?.event_id).toBe(idLead);
+  });
+
+  it('revocar avisa con consent_revoked y deja de mandar eventos', () => {
+    const f = conGtm();
+    const t = crearTracker(f.deps);
+    t.iniciar();
+    t.aceptar();
+    t.reabrir();
+    t.rechazar();
+    t.track('ClickCTA');
+    const eventos = (f.global.dataLayer as Array<Record<string, unknown>>).map((e) => e.event);
+    expect(eventos.at(-1)).toBe('consent_revoked');
+    expect(eventos).not.toContain('ClickCTA');
+  });
+
+  it('un ID con formato inválido no carga nada (no forma URLs arbitrarias)', () => {
+    const f = conGtm('GTM-<script>');
+    const t = crearTracker(f.deps);
+    t.iniciar();
+    t.aceptar();
+    expect(f.scripts.some((s) => s.includes('googletagmanager'))).toBe(false);
+  });
+});

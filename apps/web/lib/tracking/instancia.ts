@@ -12,6 +12,7 @@ export function obtenerTracker(): Tracker | null {
       ingestUrl: `${configPublica.funcionesUrl}/tracking-ingest`,
       pixelId: configPublica.metaPixelId,
       clarityId: configPublica.clarityId,
+      gtmId: configPublica.gtmId,
       versionAviso: configPublica.versionAviso,
     }),
   );
